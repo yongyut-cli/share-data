@@ -21,6 +21,7 @@
       <a class="navlink active" href="screener.html">คัดกรองหุ้น</a>
       <a class="navlink" href="detail.html?sym=PTT">รายตัว</a>
       <a class="navlink" href="portfolio.html">พอร์ต</a>
+      <a class="navlink" href="logout.php" title="ออกจากระบบ">ออกจากระบบ</a>
     </nav>
   </header>
 
@@ -32,10 +33,16 @@
         <select id="fSignal" class="w-full mt-1 bg-white/5 rounded-lg p-2 border border-white/10">
           <option value="">ทั้งหมด</option><option>BUY</option><option>ACCUMULATE</option>
           <option>HOLD</option><option>REDUCE</option><option>SELL</option><option>AVOID</option></select></label>
-      <label class="text-sm">คะแนนเทคนิคขั้นต่ำ: <span id="vScore">0</span>
+      <label class="text-sm">คะแนนรวมขั้นต่ำ: <span id="vScore">0</span>
         <input id="fScore" type="range" min="0" max="100" value="0" class="w-full mt-2"></label>
+      <label class="text-sm">พื้นฐานขั้นต่ำ: <span id="vFund">0</span>
+        <input id="fFund" type="range" min="0" max="100" value="0" class="w-full mt-2"></label>
+      <label class="text-sm">ปันผลขั้นต่ำ (%): <span id="vDiv">0</span>
+        <input id="fDiv" type="range" min="0" max="10" step="0.5" value="0" class="w-full mt-2"></label>
       <label class="text-sm">โมเมนตัมขั้นต่ำ: <span id="vMom">0</span>
         <input id="fMom" type="range" min="0" max="100" value="0" class="w-full mt-2"></label>
+      <label class="text-sm flex items-center gap-2 mt-5">
+        <input id="fLT" type="checkbox" class="w-4 h-4"> เฉพาะ "เหมาะถือยาว" 🌱</label>
     </div>
   </div>
 
@@ -46,13 +53,13 @@
     </div>
     <div class="overflow-x-auto">
       <table><thead><tr>
-        <th>หุ้น</th><th>เซกเตอร์</th><th>ราคา</th><th>เปลี่ยน</th><th>คะแนนเทคนิค</th>
-        <th>โมเมนตัม</th><th>R:R</th><th>สัญญาณ</th>
+        <th>หุ้น</th><th>เซกเตอร์</th><th>ราคา</th><th>เปลี่ยน</th><th>คะแนนรวม</th>
+        <th>เทคนิค</th><th>พื้นฐาน</th><th>ปันผล</th><th>ถือยาว</th><th>สัญญาณ</th>
       </tr></thead><tbody id="tb"></tbody></table>
     </div>
   </div>
   <p class="disclaimer text-center mt-6">
-    ข้อมูลราคา EOD จริง · วิเคราะห์ทางเทคนิค (Phase 1) · ⚠️ ไม่ใช่คำแนะนำการลงทุน
+    ข้อมูลราคา EOD + งบการเงินจริง · เทคนิค + พื้นฐาน (Phase 2) · ⚠️ ไม่ใช่คำแนะนำการลงทุน
   </p>
 </div>
 
@@ -61,14 +68,19 @@
 READY.then(() => {
   const fSector=document.getElementById('fSector');
   fSector.innerHTML='<option value="">ทุกเซกเตอร์</option>'+SECTORS.map(s=>`<option>${s}</option>`).join('');
-  const els=['fSector','fSignal','fScore','fMom'].map(i=>document.getElementById(i));
+  const els=['fSector','fSignal','fScore','fFund','fDiv','fMom','fLT'].map(i=>document.getElementById(i));
   document.getElementById('fScore').oninput=e=>document.getElementById('vScore').textContent=e.target.value;
+  document.getElementById('fFund').oninput=e=>document.getElementById('vFund').textContent=e.target.value;
+  document.getElementById('fDiv').oninput=e=>document.getElementById('vDiv').textContent=e.target.value;
   document.getElementById('fMom').oninput=e=>document.getElementById('vMom').textContent=e.target.value;
 
   function apply(){
     const sec=fSector.value, sig=document.getElementById('fSignal').value;
     const sc=+document.getElementById('fScore').value, mm=+document.getElementById('fMom').value;
-    const rows=STOCKS.filter(s=>(!sec||s.sector===sec)&&(!sig||s.signal===sig)&&(s.comp??0)>=sc&&(s.mom??0)>=mm)
+    const fn=+document.getElementById('fFund').value, dv=+document.getElementById('fDiv').value;
+    const lt=document.getElementById('fLT').checked;
+    const rows=STOCKS.filter(s=>(!sec||s.sector===sec)&&(!sig||s.signal===sig)
+        &&(s.comp??0)>=sc&&(s.mom??0)>=mm&&(s.fund??0)>=fn&&(s.div??0)>=dv&&(!lt||s.longTerm))
       .sort((a,b)=>(b.comp??0)-(a.comp??0));
     document.getElementById('cnt').textContent=rows.length;
     document.getElementById('tb').innerHTML=rows.map(s=>{
@@ -80,10 +92,12 @@ READY.then(() => {
         <td class="${s.chg>=0?'up':'down'}">${chg}</td>
         <td><div class="flex items-center gap-2"><b>${s.comp ?? '—'}</b>
           <div class="scorebar w-14"><i style="width:${s.comp??0}%;background:${scoreColor(s.comp)}"></i></div></div></td>
-        <td style="color:${scoreColor(s.mom)}">${s.mom ?? '—'}</td>
-        <td>${s.rr?'1:'+s.rr:'—'}</td>
+        <td style="color:${scoreColor(s.tech)}">${s.tech ?? '—'}</td>
+        <td style="color:${scoreColor(s.fund)}">${s.fund ?? '—'}${s.grade?` <span class="disclaimer">${s.grade}</span>`:''}</td>
+        <td>${s.div!=null?fmtNum(s.div,1)+'%':'—'}</td>
+        <td class="text-center">${s.longTerm?'🌱':''}</td>
         <td><span class="chip ${m.cls}">${m.label}</span></td></tr>`;
-    }).join('')||'<tr><td colspan="8" class="text-center muted py-6">ไม่พบหุ้นตามเงื่อนไข</td></tr>';
+    }).join('')||'<tr><td colspan="10" class="text-center muted py-6">ไม่พบหุ้นตามเงื่อนไข</td></tr>';
   }
   els.forEach(e=>e.addEventListener('input',apply));
   apply();

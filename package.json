@@ -11,6 +11,8 @@
     "fetch:one": "node pipeline/run.js --only PTT",
     "fetch:demo": "node pipeline/run.js --limit 10",
     "fetch:all": "node pipeline/run.js --all",
+    "alerts:dry": "node pipeline/run.js --limit 10 --dry-alerts",
+    "backtest": "node pipeline/backtest.js",
     "master": "node pipeline/fetch-master.js"
   },
   "license": "UNLICENSED"

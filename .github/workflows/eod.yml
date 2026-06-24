@@ -31,8 +31,21 @@ jobs:
           node-version: '20'
 
       # ไม่มี dependency ภายนอก (ใช้ fetch ในตัวของ Node 20) — ข้าม npm install
+      # Phase 2: ถ้าตั้ง Secret ANTHROPIC_API_KEY ไว้ จะวิเคราะห์ sentiment ข่าวด้วย Claude อัตโนมัติ
+      #          ถ้าไม่ตั้ง → ข้าม sentiment เงียบ ๆ (เทคนิค+พื้นฐานยังทำงานครบ)
+      # Phase 3: ถ้าตั้ง Secret TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID จะส่งแจ้งเตือน
+      #          สรุปรายวัน + สัญญาณเปลี่ยน · ถ้าไม่ตั้ง → ข้ามเงียบ ๆ
       - name: Run EOD pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: node pipeline/run.js --${{ github.event.inputs.mode || 'all' }}
+
+      # Phase 3: backtest คุณภาพสัญญาณ → data/backtest.json (ไม่ใช้ network, ~3 วิ)
+      - name: Backtest signal quality
+        run: node pipeline/backtest.js
+        continue-on-error: true
 
       # commit ผลลัพธ์กลับเข้า repo (share-data) เพื่อแชร์/เก็บประวัติ
       - name: Commit data

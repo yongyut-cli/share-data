@@ -84,3 +84,110 @@ function normalize(symbol, ysym, json) {
 function round(v) {
   return v == null ? null : Math.round(v * 100) / 100;
 }
+
+// ============================================================
+//  Phase 2 — งบการเงิน (fundamentals) + ข่าว
+//  Yahoo quoteSummary ต้องมี "crumb" + cookie (ดึงครั้งเดียว cache ไว้)
+// ============================================================
+
+let _crumb = null; // { crumb, cookie }
+
+/** ขอ cookie + crumb จาก Yahoo (cache ทั้ง process — ใช้ซ้ำทุก symbol) */
+async function getCrumb() {
+  if (_crumb) return _crumb;
+  // 1) ขอ cookie (A1/A3) — fc.yahoo.com มักตอบ 404 แต่ยังแนบ Set-Cookie มาให้
+  const r1 = await fetch('https://fc.yahoo.com', { headers: HEADERS }).catch(() => null);
+  const setc = r1?.headers?.getSetCookie?.() ?? [];
+  const cookie = setc.map((c) => c.split(';')[0]).join('; ');
+  // 2) เอา cookie ไปแลก crumb
+  const r2 = await fetch('https://query1.finance.yahoo.com/v1/test/getcrumb', {
+    headers: { ...HEADERS, cookie },
+  });
+  const crumb = (await r2.text()).trim();
+  if (!crumb || crumb.includes('<')) throw new Error(`ขอ crumb ไม่สำเร็จ (HTTP ${r2.status})`);
+  _crumb = { crumb, cookie };
+  return _crumb;
+}
+
+const num = (n) => (n && typeof n.raw === 'number' ? n.raw : null);
+
+/**
+ * ดึงงบการเงินย่อ/อัตราส่วนของหุ้น 1 ตัว
+ * ทนข้อมูลขาด: ฟิลด์ใดดึงไม่ได้ → null (ไม่ throw) ; โยน error เฉพาะกรณีเรียก API ไม่ได้เลย
+ * @returns {{pe, pbv, roe, roa, de, divYield, epsGrowth, netMargin, grossMargin, payout, mktcap, beta, currency}}
+ */
+export async function fetchFundamentals(symbol) {
+  const ysym = toYahooSymbol(symbol);
+  const modules = 'summaryDetail,defaultKeyStatistics,financialData,price';
+  return withRetry(
+    async () => {
+      const { crumb, cookie } = await getCrumb();
+      const url =
+        `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(ysym)}` +
+        `?modules=${modules}&crumb=${encodeURIComponent(crumb)}`;
+      const res = await fetch(url, { headers: { ...HEADERS, cookie } });
+      if (res.status === 401 || res.status === 403) {
+        _crumb = null; // crumb หมดอายุ → ขอใหม่รอบหน้า
+        throw new Error(`auth หมดอายุ (HTTP ${res.status})`);
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status} fundamentals (${ysym})`);
+      const j = await res.json();
+      const r = j?.quoteSummary?.result?.[0];
+      if (!r) throw new Error(`ไม่มีงบการเงิน (${ysym})`);
+      const sd = r.summaryDetail ?? {};
+      const ks = r.defaultKeyStatistics ?? {};
+      const fd = r.financialData ?? {};
+      const pr = r.price ?? {};
+      return {
+        pe: num(sd.trailingPE) ?? num(ks.trailingPE),
+        pbv: num(ks.priceToBook) ?? num(sd.priceToBook),
+        roe: num(fd.returnOnEquity),
+        roa: num(fd.returnOnAssets),
+        de: num(fd.debtToEquity) != null ? num(fd.debtToEquity) / 100 : null, // Yahoo รายงานเป็น %
+        divYield: num(sd.dividendYield) ?? num(sd.trailingAnnualDividendYield),
+        epsGrowth: num(fd.earningsGrowth) ?? num(ks.earningsQuarterlyGrowth),
+        revGrowth: num(fd.revenueGrowth),
+        netMargin: num(fd.profitMargins),
+        grossMargin: num(fd.grossMargins),
+        payout: num(sd.payoutRatio),
+        mktcap: num(sd.marketCap) ?? num(pr.marketCap),
+        beta: num(sd.beta) ?? num(ks.beta),
+        currency: pr.currency ?? null,
+      };
+    },
+    { tries: 3, baseDelay: 1200, label: `fund ${ysym}` }
+  );
+}
+
+/**
+ * ดึงพาดหัวข่าวที่ "เกี่ยวข้องจริง" ราย ticker จาก Yahoo search
+ * คัดกรอง noise ออก: เก็บเฉพาะที่ชื่อ/symbol โผล่ในพาดหัวหรือสรุป
+ * @returns {Array<{title, publisher, url, ts}>}
+ */
+export async function fetchNews(symbol, { names = [], max = 6 } = {}) {
+  const ysym = toYahooSymbol(symbol);
+  const url =
+    `https://query1.finance.yahoo.com/v1/finance/search` +
+    `?q=${encodeURIComponent(ysym)}&newsCount=${max + 6}&quotesCount=0&lang=en-US&region=US`;
+  let items = [];
+  try {
+    const res = await fetch(url, { headers: HEADERS });
+    if (!res.ok) return [];
+    const j = await res.json();
+    items = j?.news ?? [];
+  } catch {
+    return [];
+  }
+  const needles = [symbol.toLowerCase(), ...names.filter(Boolean).map((n) => n.toLowerCase())];
+  const relevant = items.filter((n) => {
+    const hay = `${n.title ?? ''} ${n.publisher ?? ''}`.toLowerCase();
+    // เกี่ยวข้องเมื่อชื่อบริษัท/symbol โผล่ในพาดหัว (ตัด noise ของ Yahoo ออก)
+    return needles.some((k) => k.length >= 3 && hay.includes(k));
+  });
+  return relevant.slice(0, max).map((n) => ({
+    title: n.title,
+    publisher: n.publisher ?? null,
+    url: n.link ?? null,
+    ts: n.providerPublishTime ? new Date(n.providerPublishTime * 1000).toISOString() : null,
+  }));
+}

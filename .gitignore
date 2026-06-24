@@ -4,6 +4,11 @@
 .api_token
 **/secrets*.json
 
+# --- credentials login (FR-AUTH) — อยู่นอก public_html, ห้ามขึ้น repo ---
+private/users.php
+# --- ข้อมูลผู้ใช้ พอร์ต/watchlist (FR-PORT) — ส่วนตัว ห้ามขึ้น repo ---
+private/userdata/
+
 # --- node ---
 node_modules/
 npm-debug.log*

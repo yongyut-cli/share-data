@@ -26,6 +26,7 @@
       <a class="navlink" href="screener.html">คัดกรองหุ้น</a>
       <a class="navlink active" href="#">รายตัว</a>
       <a class="navlink" href="portfolio.html">พอร์ต</a>
+      <a class="navlink" href="logout.php" title="ออกจากระบบ">ออกจากระบบ</a>
     </nav>
   </header>
 
@@ -41,7 +42,12 @@
         </div>
       </div>
     </div>
-    <div id="hSignal" class="text-right"></div>
+    <div class="flex items-center gap-3">
+      <button id="watchBtn" title="เพิ่ม/เอาออกจาก watchlist"
+        class="px-3 py-2 rounded-lg font-semibold text-sm"
+        style="background:#0b0f17;border:1px solid #2a3441;color:#cbd5e1">⭐ ติดตาม</button>
+      <div id="hSignal" class="text-right"></div>
+    </div>
   </div>
 
   <div class="grid lg:grid-cols-3 gap-4 mb-4">
@@ -72,25 +78,29 @@
     <div class="card p-4 fade-in">
       <h2 class="font-bold mb-2">เรดาร์คะแนน 4 มิติ</h2>
       <div id="radar" style="height:260px"></div>
-      <div class="disclaimer text-center">พื้นฐาน / Sentiment จะเปิดใช้ใน Phase 2</div>
+      <div id="radarNote" class="disclaimer text-center"></div>
+    </div>
+    <!-- FUNDAMENTALS -->
+    <div class="card p-4 fade-in">
+      <h2 class="font-bold mb-3">💼 พื้นฐาน (งบการเงิน)</h2>
+      <div id="fundamentals" class="grid grid-cols-2 gap-3 text-sm"></div>
+      <div id="fundReasons" class="space-y-1.5 text-sm mt-3"></div>
     </div>
     <!-- INDICATORS -->
     <div class="card p-4 fade-in">
-      <h2 class="font-bold mb-3">อินดิเคเตอร์เทคนิค</h2>
+      <h2 class="font-bold mb-3">📐 อินดิเคเตอร์เทคนิค</h2>
       <div id="fund" class="grid grid-cols-2 gap-3 text-sm"></div>
-    </div>
-    <!-- NEWS (Phase 2) -->
-    <div class="card p-4 fade-in">
-      <h2 class="font-bold mb-3">📰 ข่าว & Sentiment (AI)</h2>
-      <div id="news" class="muted text-sm leading-relaxed">
-        การดึงข่าว + สรุป/ให้คะแนน sentiment ด้วย AI (Claude) จะมาใน <b>Phase 2</b>
-        พร้อมการวิเคราะห์พื้นฐาน (งบการเงินย่อ) และป้าย "เหมาะถือยาว"
-      </div>
     </div>
   </div>
 
+  <!-- NEWS + SENTIMENT -->
+  <div class="card p-4 mb-4 fade-in">
+    <h2 class="font-bold mb-3">📰 ข่าว & Sentiment (AI)</h2>
+    <div id="news" class="text-sm leading-relaxed"></div>
+  </div>
+
   <p class="disclaimer text-center mt-6 mb-2">
-    ข้อมูลราคา EOD จริงจาก Yahoo Finance · วิเคราะห์ทางเทคนิค (Phase 1) ·
+    ข้อมูลราคา EOD + งบการเงินจาก Yahoo Finance · เทคนิค + พื้นฐาน + composite (Phase 2) ·
     ⚠️ <b>ข้อมูลเพื่อการศึกษาส่วนตัว ไม่ใช่คำแนะนำการลงทุน</b> · การลงทุนมีความเสี่ยง
   </p>
 </div>
@@ -108,7 +118,34 @@ READY.then(async () => {
 
   const d = await loadStock(sym);     // { symbol, price, chg, score:{...}, bars:[...] }
   render(d);
+  initWatch();
 }).catch(showDataError);
+
+// ---- ปุ่ม watchlist (Phase 3 / FR-PORT) ----
+async function initWatch(){
+  const btn = document.getElementById('watchBtn');
+  let inList = false;
+  const paint = () => {
+    btn.textContent = inList ? '⭐ อยู่ใน watchlist' : '⭐ ติดตาม';
+    btn.style.background = inList ? 'rgba(16,209,142,.15)' : '#0b0f17';
+    btn.style.borderColor = inList ? '#10d18e' : '#2a3441';
+    btn.style.color = inList ? '#10d18e' : '#cbd5e1';
+  };
+  try {
+    const st = await apiState();
+    inList = (st.watchlist || []).includes(sym);
+    paint();
+  } catch { return; }
+  btn.onclick = async () => {
+    btn.disabled = true;
+    try {
+      const st = await apiPost(inList ? 'watch_del' : 'watch_add', { sym });
+      inList = (st.watchlist || []).includes(sym);
+      paint();
+    } catch (e) { alert(e.message); }
+    btn.disabled = false;
+  };
+}
 
 function render(d){
   const sc = d.score || {};
@@ -121,9 +158,12 @@ function render(d){
   chg.textContent = (d.chg>=0?'▲ +':'▼ ')+fmtNum(d.chg)+'%';
   chg.className = 'font-semibold ' + (d.chg>=0?'up':'down');
 
+  const fd = d.fundamentals || null;
+  const ltBadge = fd && fd.longTerm ? `<span class="chip" style="background:#10b98122;color:#34d399;font-size:12px;padding:3px 10px;margin-left:6px">🌱 เหมาะถือยาว</span>` : '';
   document.getElementById('hSignal').innerHTML =
-    `<span class="chip ${m.cls}" style="font-size:15px;padding:6px 16px">${m.label}</span>
-     <div class="muted text-sm mt-1">คะแนนเทคนิค <b style="color:${scoreColor(sc.tech)}">${sc.tech ?? '—'}</b>/100</div>`;
+    `<span class="chip ${m.cls}" style="font-size:15px;padding:6px 16px">${m.label}</span>${ltBadge}
+     <div class="muted text-sm mt-1">คะแนนรวม <b style="color:${scoreColor(sc.composite)}">${sc.composite ?? '—'}</b>/100
+     <span class="opacity-60">· เทคนิค ${sc.tech ?? '—'} · พื้นฐาน ${fd?.fund ?? '—'}${fd?.grade?` (เกรด ${fd.grade})`:''}</span></div>`;
 
   // plan
   const hasPlan = sc.entry > 0;
@@ -154,21 +194,76 @@ function render(d){
   document.getElementById('fund').innerHTML = f.map(([k,v])=>
     `<div class="bg-white/5 rounded-lg p-3"><div class="disclaimer">${k}</div><div class="font-bold text-base">${typeof v==='string'?v:fmtNum(v)}</div></div>`).join('');
 
-  // radar — เทคนิค & โมเมนตัม จริง; พื้นฐาน/Sentiment รอ Phase 2
+  // radar — 4 มิติจริง (พื้นฐาน/Sentiment เป็น null ถ้ายังไม่มีข้อมูล)
+  const sent = d.sentiment || null;
   const radar = echarts.init(document.getElementById('radar'));
   radar.setOption({
     radar:{ indicator:[
-        {name:'เทคนิค',max:100},{name:'พื้นฐาน (P2)',max:100},
-        {name:'โมเมนตัม',max:100},{name:'Sentiment (P2)',max:100}],
+        {name:'เทคนิค',max:100},{name:'พื้นฐาน',max:100},
+        {name:'โมเมนตัม',max:100},{name:'Sentiment',max:100}],
       splitLine:{lineStyle:{color:'#1e2a3e'}}, splitArea:{areaStyle:{color:['transparent']}},
       axisLine:{lineStyle:{color:'#1e2a3e'}}, axisName:{color:'#8a99b3'} },
-    series:[{type:'radar',data:[{value:[sc.tech??0, 0, sc.mom??0, 0],
+    series:[{type:'radar',data:[{value:[sc.tech??0, fd?.fund??0, sc.mom??0, sent?.score100??0],
       areaStyle:{color:'rgba(16,209,142,.25)'},lineStyle:{color:'#10d18e'},
       itemStyle:{color:'#10d18e'}}]}]
   });
   window.addEventListener('resize',()=>radar.resize());
+  document.getElementById('radarNote').innerHTML =
+    (fd ? '' : '⚠️ ดึงงบการเงินไม่ได้สำหรับตัวนี้ ') +
+    (sent ? '' : '· Sentiment เปิดเมื่อรัน AI บน GitHub Actions');
+
+  // พื้นฐาน (งบการเงิน)
+  renderFundamentals(fd);
+  // ข่าว + sentiment
+  renderNews(d.news || [], sent);
 
   buildChart(d);
+}
+
+// มาร์เก็ตแคป (เก็บเป็นล้านบาท) → สตริงอ่านง่าย
+function fmtMktcap(m){
+  if(m==null) return null;
+  return m>=1e6 ? (m/1e6).toFixed(2)+' ล้านล้าน฿' : Math.round(m).toLocaleString('th-TH')+' ลบ.';
+}
+function renderFundamentals(fd){
+  const box = document.getElementById('fundamentals');
+  const rea = document.getElementById('fundReasons');
+  if(!fd){ box.innerHTML=''; rea.innerHTML='<div class="muted">ดึงงบการเงินของตัวนี้ไม่ได้ (ข้อมูลไม่ครบ/หุ้นเล็ก)</div>'; return; }
+  const r = fd.ratios || {};
+  const cells = [
+    ['P/E', r.pe], ['P/BV', r.pbv],
+    ['ROE', r.roe!=null?r.roe+'%':null], ['ROA', r.roa!=null?r.roa+'%':null],
+    ['D/E', r.de], ['ปันผล', r.divYield!=null?r.divYield+'%':null],
+    ['กำไรโต YoY', r.epsGrowth!=null?(r.epsGrowth>=0?'+':'')+r.epsGrowth+'%':null],
+    ['มาร์เก็ตแคป', fmtMktcap(r.mktcap)],
+  ];
+  box.innerHTML = cells.map(([k,v])=>
+    `<div class="bg-white/5 rounded-lg p-3"><div class="disclaimer">${k}</div><div class="font-bold text-base">${v==null?'—':(typeof v==='string'?v:fmtNum(v))}</div></div>`).join('');
+  const reasons = fd.reasons || [];
+  rea.innerHTML = reasons.length ? reasons.map(x=>
+    `<div class="flex gap-2"><span>${x.ic}</span><span class="muted">${x.t}</span></div>`).join('') : '';
+}
+
+function renderNews(news, sent){
+  const box = document.getElementById('news');
+  let html = '';
+  if(sent){
+    const s = sent.score, col = s>0.15?'#34d399':s<-0.15?'#f87171':'#a3a3a3';
+    const lab = s>0.15?'เชิงบวก':s<-0.15?'เชิงลบ':'เป็นกลาง';
+    html += `<div class="mb-3 p-3 rounded-lg" style="background:#0f1a2e"><div class="flex items-center gap-2 mb-1">
+      <b>สรุปโดย AI</b><span class="chip" style="background:${col}22;color:${col};font-size:12px;padding:2px 10px">${lab} (${s>=0?'+':''}${fmtNum(s,2)})</span></div>
+      <div class="muted">${sent.summary||''}</div>${sent.risks?`<div class="mt-1" style="color:#fbbf24">⚠️ ${sent.risks}</div>`:''}</div>`;
+  }
+  if(news && news.length){
+    html += '<div class="space-y-2">'+news.map(n=>
+      `<a href="${n.url||'#'}" target="_blank" rel="noopener" class="block hover:bg-white/5 rounded p-2 -mx-2">
+        <div>${n.title}</div><div class="disclaimer">${n.publisher||''}${n.ts?' · '+n.ts.slice(0,10):''}</div></a>`).join('')+'</div>';
+  }
+  if(!html){
+    html = `<div class="muted">ยังไม่พบข่าวที่เกี่ยวข้องโดยตรงสำหรับตัวนี้
+      ${sent?'':'· การให้คะแนน sentiment ด้วย AI (Claude) จะทำงานเมื่อรัน pipeline บน GitHub Actions ที่ตั้ง <code>ANTHROPIC_API_KEY</code>'}</div>`;
+  }
+  box.innerHTML = html;
 }
 
 function buildChart(d){

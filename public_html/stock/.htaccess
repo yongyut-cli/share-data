@@ -1,0 +1,24 @@
+# ============================================================
+# FR-AUTH — กั้นทั้งโฟลเดอร์ /stock/ ด้วย guard.php
+# ทุก request (html, js, json, data) ถูกส่งผ่าน guard.php เพื่อตรวจ session
+# ยกเว้น login/logout/auth/guard เอง
+# ============================================================
+
+# ห้าม list ไฟล์ในไดเรกทอรี
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /stock/
+
+  # endpoint ฝั่งเซิร์ฟเวอร์ — เสิร์ฟตรง (ตรวจ session ภายในเอง) ไม่ต้องผ่าน guard
+  RewriteRule ^(login\.php|logout\.php|auth\.php|guard\.php|api\.php)$ - [L]
+
+  # ทุกอย่างที่เหลือ → guard.php (guard อ่าน REQUEST_URI เดิมเพื่อรู้ว่าขอไฟล์ใด)
+  RewriteRule ^ guard.php [L]
+</IfModule>
+
+# เผื่อ host ปิด mod_rewrite — กันไฟล์ลับฝั่งเซิร์ฟเวอร์ไว้ก่อน
+<FilesMatch "^(auth)\.php$">
+  Require all denied
+</FilesMatch>

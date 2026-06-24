@@ -1,1 +1,1 @@
-{"generated_at":"2026-06-24T03:26:22.961Z","date_ict":"2026-06-24","requested":58,"ok":58,"failed":0,"failures":[],"phase":1,"note":"EOD + technical indicators + technical scoring/signals (พื้นฐาน/ข่าว มาใน Phase 2)"}
+{"generated_at":"2026-06-24T04:45:09.599Z","date_ict":"2026-06-24","requested":58,"ok":58,"failed":0,"failures":[],"phase":2,"fundamentals_ok":58,"sentiment_ok":0,"sentiment_enabled":false,"note":"EOD + technical + fundamentals + long-term flag + composite (sentiment เปิดเมื่อมี ANTHROPIC_API_KEY)"}

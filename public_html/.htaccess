@@ -1,0 +1,7 @@
+# root → /stock/ (แอปจริง) แทนหน้า default ของ Hostinger
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^$ /stock/ [R=302,L]
+</IfModule>

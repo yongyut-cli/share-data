@@ -66,9 +66,14 @@ function mapStock(s) {
     signal: s.signal || 'NA',
     rr: s.rr,
     incomplete: s.incomplete,
-    // --- Phase 2 (ยังไม่มีข้อมูล) ---
-    fund: null, sent: null, longTerm: null,
-    pe: null, pbv: null, roe: null, div: null,
+    // --- Phase 2 (ข้อมูลจริง) ---
+    fund: s.fund ?? null,
+    sent: s.sentiment ?? null,
+    longTerm: s.longTerm ?? false,
+    grade: s.grade ?? null,
+    pe: s.pe ?? null,
+    div: s.divYield ?? null,
+    fundIncomplete: s.fundIncomplete ?? null,
   };
 }
 
@@ -100,6 +105,35 @@ function showDataError(err) {
     และเปิดผ่าน http(s) ไม่ใช่ file://</div>`;
   document.body.prepend(box);
   console.error(err);
+}
+
+// ============================================================
+//  API ส่วนตัว (Phase 3 / FR-PORT) — พอร์ต + watchlist
+//  ต้องล็อกอินอยู่ (session) · เซิร์ฟเวอร์ตรวจสิทธิ์ใน api.php
+// ============================================================
+let _csrf = null;
+
+async function apiState() {
+  const res = await fetch('api.php?action=state', { cache: 'no-store' });
+  if (res.status === 401) { location.href = 'login.php'; throw new Error('ต้องเข้าสู่ระบบ'); }
+  if (!res.ok) throw new Error(`โหลดข้อมูลผู้ใช้ไม่ได้ (HTTP ${res.status})`);
+  const d = await res.json();
+  _csrf = d.csrf || _csrf;
+  return d;
+}
+
+async function apiPost(action, payload = {}) {
+  if (!_csrf) { try { await apiState(); } catch (e) { /* ตกไปให้ error ด้านล่าง */ } }
+  const res = await fetch('api.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF': _csrf || '' },
+    body: JSON.stringify({ action, ...payload }),
+  });
+  if (res.status === 401) { location.href = 'login.php'; throw new Error('ต้องเข้าสู่ระบบ'); }
+  const d = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(d.error || `บันทึกไม่สำเร็จ (HTTP ${res.status})`);
+  _csrf = d.csrf || _csrf;
+  return d;
 }
 
 // promise กลางที่ทุกหน้า await ก่อน render

@@ -22,69 +22,69 @@
       <a class="navlink" href="screener.html">คัดกรองหุ้น</a>
       <a class="navlink" href="detail.html?sym=PTT">รายตัว</a>
       <a class="navlink active" href="portfolio.html">พอร์ต</a>
+      <a class="navlink" href="logout.php" title="ออกจากระบบ">ออกจากระบบ</a>
     </nav>
   </header>
 
   <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 fade-in">
-    <div class="card p-4"><div class="muted text-xs mb-1">มูลค่าพอร์ตปัจจุบัน</div><div id="mv" class="text-2xl font-bold"></div></div>
-    <div class="card p-4"><div class="muted text-xs mb-1">ต้นทุนรวม</div><div id="cost" class="text-2xl font-bold"></div></div>
-    <div class="card p-4"><div class="muted text-xs mb-1">กำไร/ขาดทุน</div><div id="pl" class="text-2xl font-bold"></div></div>
-    <div class="card p-4"><div class="muted text-xs mb-1">% ผลตอบแทน</div><div id="plpct" class="text-2xl font-bold"></div></div>
+    <div class="card p-4"><div class="muted text-xs mb-1">มูลค่าพอร์ตปัจจุบัน</div><div id="mv" class="text-2xl font-bold">—</div></div>
+    <div class="card p-4"><div class="muted text-xs mb-1">ต้นทุนรวม</div><div id="cost" class="text-2xl font-bold">—</div></div>
+    <div class="card p-4"><div class="muted text-xs mb-1">กำไร/ขาดทุน</div><div id="pl" class="text-2xl font-bold">—</div></div>
+    <div class="card p-4"><div class="muted text-xs mb-1">% ผลตอบแทน</div><div id="plpct" class="text-2xl font-bold">—</div></div>
   </section>
 
+  <!-- เพิ่มรายการถือครอง -->
+  <div class="card p-4 mb-4 fade-in">
+    <h2 class="font-bold mb-3">➕ เพิ่มรายการถือครอง</h2>
+    <form id="addForm" class="grid sm:grid-cols-5 gap-2 items-end">
+      <div><label class="muted text-xs">หุ้น</label>
+        <input id="f_sym" list="symList" required placeholder="เช่น PTT"
+          class="w-full mt-1 px-3 py-2 rounded-lg" style="background:#0b0f17;border:1px solid #2a3441;color:#f3f4f6">
+        <datalist id="symList"></datalist></div>
+      <div><label class="muted text-xs">จำนวน (หุ้น)</label>
+        <input id="f_qty" type="number" min="1" step="1" required
+          class="w-full mt-1 px-3 py-2 rounded-lg" style="background:#0b0f17;border:1px solid #2a3441;color:#f3f4f6"></div>
+      <div><label class="muted text-xs">ทุน/หุ้น (฿)</label>
+        <input id="f_cost" type="number" min="0" step="0.01" required
+          class="w-full mt-1 px-3 py-2 rounded-lg" style="background:#0b0f17;border:1px solid #2a3441;color:#f3f4f6"></div>
+      <div><label class="muted text-xs">วันที่ซื้อ</label>
+        <input id="f_date" type="date"
+          class="w-full mt-1 px-3 py-2 rounded-lg" style="background:#0b0f17;border:1px solid #2a3441;color:#f3f4f6"></div>
+      <button type="submit" class="px-4 py-2 rounded-lg font-bold" style="background:linear-gradient(135deg,#10d18e,#3b82f6);color:#04130d">บันทึก</button>
+    </form>
+    <div id="formMsg" class="disclaimer mt-2"></div>
+  </div>
+
   <div class="grid lg:grid-cols-3 gap-4 mb-4">
-    <div class="card p-4 fade-in"><h2 class="font-bold mb-2">สัดส่วนพอร์ต</h2><div id="donut" style="height:260px"></div></div>
+    <div class="card p-4 fade-in">
+      <h2 class="font-bold mb-2">สัดส่วนพอร์ต</h2><div id="donut" style="height:230px"></div>
+      <h3 class="font-bold mt-3 mb-2 text-sm">กระจายความเสี่ยงรายเซกเตอร์</h3>
+      <div id="sectorBars" class="space-y-1.5"></div>
+    </div>
     <div class="card p-4 lg:col-span-2 fade-in">
-      <h2 class="font-bold mb-3">รายการถือครอง (จำลอง)</h2>
+      <h2 class="font-bold mb-3">รายการถือครอง</h2>
       <div class="overflow-x-auto"><table><thead><tr>
-        <th>หุ้น</th><th>จำนวน</th><th>ทุน/หุ้น</th><th>ราคาล่าสุด</th><th>มูลค่า</th><th>กำไร/ขาดทุน</th><th>สัญญาณ</th>
+        <th>หุ้น</th><th>จำนวน</th><th>ทุน/หุ้น</th><th>ราคาล่าสุด</th><th>มูลค่า</th><th>กำไร/ขาดทุน</th><th>สัญญาณ</th><th></th>
       </tr></thead><tbody id="tb"></tbody></table></div>
+      <div id="emptyHold" class="disclaimer text-center py-6" style="display:none">ยังไม่มีรายการถือครอง — เพิ่มด้านบนได้เลย</div>
     </div>
   </div>
+
+  <!-- Watchlist -->
+  <div class="card p-4 mb-4 fade-in">
+    <h2 class="font-bold mb-3">⭐ Watchlist</h2>
+    <div class="overflow-x-auto"><table><thead><tr>
+      <th>หุ้น</th><th>ราคาล่าสุด</th><th>เปลี่ยน</th><th>คะแนนรวม</th><th>สัญญาณ</th><th></th>
+    </tr></thead><tbody id="wtb"></tbody></table></div>
+    <div id="emptyWatch" class="disclaimer text-center py-4" style="display:none">ยังไม่มีหุ้นใน watchlist — กดปุ่ม ⭐ ในหน้ารายตัวเพื่อเพิ่ม</div>
+  </div>
+
   <p class="disclaimer text-center mt-6">
-    พอร์ตจำลอง (ยังไม่มีระบบบันทึก/ล็อกอิน — มาใน Phase 3) · คำนวณจากราคา EOD จริง · ⚠️ ไม่ใช่คำแนะนำการลงทุน
+    บันทึกพอร์ต/watchlist จริงต่อผู้ใช้ · คำนวณจากราคา EOD จริง · ⚠️ ไม่ใช่คำแนะนำการลงทุน
   </p>
 </div>
 
 <script src="assets/app.js"></script>
-<script>
-// พอร์ตจำลอง (Phase 3 จะให้บันทึกเอง + login)
-const HOLD=[{sym:'PTT',qty:5000,cost:32.0},{sym:'AOT',qty:2000,cost:55.0},
-  {sym:'KBANK',qty:800,cost:140.0},{sym:'ADVANC',qty:300,cost:200.0},{sym:'GULF',qty:3000,cost:38.0}];
-
-READY.then(() => {
-  let mv=0,cost=0;
-  const rows=HOLD.map(h=>{
-    const s=getStock(h.sym); const val=h.qty*s.price; const c=h.qty*h.cost;
-    mv+=val; cost+=c; const pl=val-c; const m=SIGNAL_META[s.signal];
-    return {s,h,val,c,pl,m};
-  });
-  const pl=mv-cost, pct=pl/cost*100;
-  document.getElementById('mv').textContent=mv.toLocaleString('th-TH',{maximumFractionDigits:0})+' ฿';
-  document.getElementById('cost').textContent=cost.toLocaleString('th-TH',{maximumFractionDigits:0})+' ฿';
-  const plEl=document.getElementById('pl'); plEl.textContent=(pl>=0?'+':'')+pl.toLocaleString('th-TH',{maximumFractionDigits:0})+' ฿';
-  plEl.className='text-2xl font-bold '+(pl>=0?'up':'down');
-  const pctEl=document.getElementById('plpct'); pctEl.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%';
-  pctEl.className='text-2xl font-bold '+(pct>=0?'up':'down');
-
-  document.getElementById('tb').innerHTML=rows.map(({s,h,val,pl,m})=>
-    `<tr onclick="location.href='detail.html?sym=${s.sym}'">
-      <td><b>${s.sym}</b> <span class="disclaimer">${s.name}</span></td>
-      <td>${h.qty.toLocaleString()}</td><td>${fmtNum(h.cost)}</td><td>${fmtNum(s.price)}</td>
-      <td>${val.toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
-      <td class="${pl>=0?'up':'down'}">${(pl>=0?'+':'')+pl.toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
-      <td><span class="chip ${m.cls}">${m.label}</span></td></tr>`).join('');
-
-  const donut=echarts.init(document.getElementById('donut'));
-  donut.setOption({
-    tooltip:{trigger:'item',formatter:'{b}: {d}%'},
-    series:[{type:'pie',radius:['45%','72%'],itemStyle:{borderColor:'#0b0f17',borderWidth:2},
-      label:{color:'#cbd5e1'},
-      data:rows.map(r=>({name:r.s.sym,value:Math.round(r.val)}))}],
-    color:['#10d18e','#3b82f6','#f59e0b','#a855f7','#ef4444','#06b6d4']
-  });
-  window.addEventListener('resize',()=>donut.resize());
-}).catch(showDataError);
-</script>
+<script src="assets/portfolio.js"></script>
 </body>
 </html>

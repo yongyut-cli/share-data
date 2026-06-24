@@ -177,6 +177,42 @@ export function analyze(bars) {
   };
 }
 
+// ============================================================
+//  Composite score (Phase 2) — รวม เทคนิค + พื้นฐาน + โมเมนตัม + sentiment
+//  น้ำหนักปรับได้ (FR-SIGNAL) ; ถ้ามิติใดไม่มีข้อมูล → เฉลี่ยน้ำหนักใหม่อัตโนมัติ
+// ============================================================
+export const DEFAULT_WEIGHTS = { tech: 0.45, fund: 0.3, mom: 0.15, sentiment: 0.1 };
+
+/**
+ * รวมคะแนน 4 มิติเป็น composite + ตัดสินสัญญาณสุดท้าย
+ * @param {{tech, fund, mom, sentiment}} parts (ค่า null = ไม่มีข้อมูลมิตินั้น)
+ * @param {boolean} uptrend ราคายืนเหนือ EMA200 หรือไม่ (กันสัญญาณ BUY สวนเทรนด์ใหญ่)
+ */
+export function compose(parts, uptrend, weights = DEFAULT_WEIGHTS) {
+  let wsum = 0;
+  let acc = 0;
+  const used = {};
+  for (const k of Object.keys(weights)) {
+    if (parts[k] != null) {
+      acc += parts[k] * weights[k];
+      wsum += weights[k];
+      used[k] = weights[k];
+    }
+  }
+  if (wsum === 0) return { composite: parts.tech ?? null, signal: 'NA', weights: used };
+  const composite = clamp(Math.round(acc / wsum));
+
+  let signal;
+  if (composite >= 75 && uptrend) signal = 'BUY';
+  else if (composite >= 64) signal = 'ACCUMULATE';
+  else if (composite >= 50) signal = 'HOLD';
+  else if (composite >= 38) signal = 'REDUCE';
+  else if (uptrend === false && composite < 30) signal = 'AVOID';
+  else signal = 'SELL';
+
+  return { composite, signal, weights: used };
+}
+
 // helper: เส้น a ตัด b ขึ้น ภายใน lookback แท่งล่าสุด
 function crossedUp(a, b, lookback) {
   const n = a.length;

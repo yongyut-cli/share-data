@@ -12,21 +12,28 @@
 //   OUT_DIR=/path node pipeline/run.js    กำหนดโฟลเดอร์ผลลัพธ์เอง
 import { resolve } from 'node:path';
 import { loadMaster, REPO_ROOT } from './fetch-master.js';
-import { fetchEOD } from './lib/yahoo.js';
-import { analyze } from './lib/scoring.js';
+import { fetchEOD, fetchFundamentals, fetchNews } from './lib/yahoo.js';
+import { analyze, compose } from './lib/scoring.js';
+import { scoreFundamentals } from './lib/fundamentals.js';
+import { analyzeSentimentBatch, sentimentToScore, hasSentimentKey } from './lib/sentiment.js';
+import { runAlerts, hasTelegram } from './lib/alerts.js';
 import { mapBatched, writeJSON, todayICT, nowISO } from './lib/util.js';
+import { readFile } from 'node:fs/promises';
 
 const OUT_DIR = process.env.OUT_DIR
   ? resolve(process.env.OUT_DIR)
   : resolve(REPO_ROOT, 'public_html/stock/data');
 
 function parseArgs(argv) {
-  const a = { mode: 'demo', limit: 10, only: null };
+  const a = { mode: 'demo', limit: 10, only: null, fund: true, news: true, dryAlerts: false };
   for (let i = 2; i < argv.length; i++) {
     const t = argv[i];
     if (t === '--all') a.mode = 'all';
     else if (t === '--only') { a.mode = 'only'; a.only = argv[++i]?.toUpperCase(); }
     else if (t === '--limit') { a.mode = 'demo'; a.limit = parseInt(argv[++i], 10) || 10; }
+    else if (t === '--no-fund') a.fund = false;
+    else if (t === '--no-news') a.news = false;
+    else if (t === '--dry-alerts') a.dryAlerts = true; // พิมพ์ข้อความแจ้งเตือนแทนการส่งจริง
   }
   return a;
 }
@@ -56,6 +63,13 @@ async function main() {
   console.log(`=== Thai Stock Analyzer — EOD pipeline (Phase 0) ===`);
   console.log(`วันที่ (ICT): ${todayICT()}  |  เป้าหมาย: ${targets.length} ตัว  |  out: ${OUT_DIR}\n`);
 
+  // อ่าน summary เดิม (วันก่อนหน้า) ไว้เทียบ "สัญญาณเปลี่ยน" สำหรับแจ้งเตือน (FR-ALERT)
+  let prevStocks = [];
+  try {
+    const prev = JSON.parse(await readFile(resolve(OUT_DIR, 'summary.json'), 'utf8'));
+    prevStocks = prev.stocks || [];
+  } catch { /* ครั้งแรกยังไม่มีไฟล์ — ไม่เป็นไร */ }
+
   // --- STEP 1: พิสูจน์ดึง "ตัวเดียว" ก่อน ---
   const first = targets[0];
   console.log(`STEP 1 — ดึงตัวเดียว: ${first.symbol} (${first.name_th})`);
@@ -66,68 +80,147 @@ async function main() {
       `ปิดล่าสุด ${lastBar.close} (${lastBar.date})\n`
   );
 
-  // --- STEP 2: ดึง "หลายตัว" แบบ batch (จำกัด concurrency + เว้นจังหวะ กัน rate-limit) ---
-  console.log(`STEP 2 — ดึงหลายตัว (${targets.length}) แบบ batch ...`);
+  // --- STEP 2: ดึง "หลายตัว" แบบ batch — ราคา + งบการเงิน + ข่าว (กัน rate-limit) ---
+  console.log(
+    `STEP 2 — ดึงหลายตัว (${targets.length}): ราคา` +
+      `${args.fund ? ' + งบการเงิน' : ''}${args.news ? ' + ข่าว' : ''} ...`
+  );
   const settled = await mapBatched(
     targets,
     async (s) => {
       const data = await fetchEOD(s.symbol);
-      return { s, data };
+      // งบการเงิน/ข่าว = เสริม → ล้มเหลวได้โดยไม่ทำให้ทั้งตัวพัง (graceful degradation, FR-DATA-4)
+      let fund = null;
+      let news = [];
+      if (args.fund) {
+        try {
+          fund = await fetchFundamentals(s.symbol);
+        } catch (e) {
+          console.warn(`  ⚠ ${s.symbol} งบการเงิน: ${e.message}`);
+        }
+      }
+      if (args.news) {
+        try {
+          news = await fetchNews(s.symbol, { names: [s.name_en, s.name_th] });
+        } catch { /* เงียบ — ข่าวเป็นออปชัน */ }
+      }
+      return { s, data, fund, news };
     },
     { concurrency: 4, gapMs: 700 }
   );
 
-  const summary = [];
+  // --- STEP 2.5: รวบรวมผลดิบ + คำนวณเทคนิค/พื้นฐาน (ยังไม่ compose จนกว่าได้ sentiment) ---
+  const records = [];
   const failures = [];
-  let ok = 0;
-
   for (let i = 0; i < settled.length; i++) {
     const r = settled[i];
     const meta = bySym[targets[i].symbol];
     if (r.status === 'fulfilled') {
-      const { data } = r.value;
-      const last = data.bars[data.bars.length - 1];
-      const score = analyze(data.bars); // indicators + คะแนนเทคนิค + สัญญาณ (null ถ้าข้อมูลสั้น)
-      const turnover = Math.round((last.close * last.volume) / 1e6); // มูลค่าซื้อขายล่าสุด (ล้านบาท)
-
-      await writeJSON(resolve(OUT_DIR, 'prices', `${meta.symbol}.json`), {
-        symbol: meta.symbol,
-        name_th: meta.name_th,
-        name_en: meta.name_en,
-        sector: meta.sector,
-        market: meta.market,
-        currency: data.currency,
-        date: last.date,
-        price: last.close,
-        chg: changePct(data.bars),
-        score,
-        bars: data.bars,
+      const { data, fund, news } = r.value;
+      records.push({
+        meta,
+        data,
+        tech: analyze(data.bars),                       // เทคนิค (null ถ้าข้อมูลสั้น)
+        fundScore: fund ? scoreFundamentals(fund) : null, // พื้นฐาน (null ถ้าดึงไม่ได้)
+        news: news ?? [],
       });
-      summary.push({
-        symbol: meta.symbol,
-        name_th: meta.name_th,
-        name_en: meta.name_en,
-        market: meta.market,
-        sector: meta.sector,
-        price: last.close,
-        chg: changePct(data.bars),
-        turnover,
-        date: last.date,
-        bars: data.bars.length,
-        tech: score?.tech ?? null,
-        mom: score?.mom ?? null,
-        composite: score?.composite ?? null,
-        signal: score?.signal ?? null,
-        rr: score?.rr ?? null,
-        incomplete: !score, // ข้อมูลสั้นเกินกว่าจะคำนวณสัญญาณ
-      });
-      ok++;
-      const sig = score?.signal ?? '—';
-      console.log(`  ✓ ${meta.symbol.padEnd(7)} ${String(last.close).padStart(8)}  คะแนน ${String(score?.tech ?? '—').padStart(3)}  ${sig}`);
     } else {
       failures.push({ symbol: meta.symbol, error: String(r.reason?.message ?? r.reason) });
       console.warn(`  ✗ ${meta.symbol.padEnd(7)} — ${r.reason?.message ?? r.reason}`);
     }
+  }
+
+  // --- STEP 3: ข่าว → sentiment ด้วย Claude (batch เดียว ; ข้ามถ้าไม่มี ANTHROPIC_API_KEY) ---
+  let sentiments = {};
+  if (args.news) {
+    if (hasSentimentKey()) {
+      const newsBatch = records
+        .filter((rec) => rec.news.length)
+        .map((rec) => ({ symbol: rec.meta.symbol, name: rec.meta.name_en || rec.meta.name_th, news: rec.news }));
+      if (newsBatch.length) {
+        console.log(`\nSTEP 3 — วิเคราะห์ sentiment ${newsBatch.length} ตัวที่มีข่าว (Claude) ...`);
+        try {
+          sentiments = await analyzeSentimentBatch(newsBatch);
+        } catch (e) {
+          console.warn(`  ⚠ sentiment ล้มเหลว: ${e.message}`);
+        }
+      }
+    } else {
+      console.log(`\nSTEP 3 — ข้าม sentiment (ไม่มี ANTHROPIC_API_KEY) — จะทำงานเมื่อรันบน GitHub Actions ที่ตั้ง Secret`);
+    }
+  }
+
+  // --- STEP 4: compose composite + สัญญาณสุดท้าย แล้วเขียนไฟล์ ---
+  const summary = [];
+  let ok = 0;
+  for (const rec of records) {
+    const { meta, data, tech, fundScore } = rec;
+    const last = data.bars[data.bars.length - 1];
+    const turnover = Math.round((last.close * last.volume) / 1e6);
+
+    const sent = sentiments[meta.symbol] ?? null;          // { score, summary, risks } | null
+    const sentScore = sent ? sentimentToScore(sent.score) : null; // 0..100 | null
+    const uptrend = tech?.indicators?.ema200 != null ? last.close > tech.indicators.ema200 : null;
+
+    // composite รวม 4 มิติ (มิติที่ไม่มีข้อมูล → ถ่วงน้ำหนักใหม่อัตโนมัติ)
+    const comp = tech
+      ? compose({ tech: tech.tech, fund: fundScore?.fund ?? null, mom: tech.mom, sentiment: sentScore }, uptrend)
+      : { composite: null, signal: 'NA', weights: {} };
+
+    // score รวม = เทคนิค (entry/stop/target/indicators/reasons) + composite/signal สุดท้าย
+    const score = tech
+      ? { ...tech, composite: comp.composite, signal: comp.signal, signalTech: tech.signal, weights: comp.weights }
+      : null;
+
+    await writeJSON(resolve(OUT_DIR, 'prices', `${meta.symbol}.json`), {
+      symbol: meta.symbol,
+      name_th: meta.name_th,
+      name_en: meta.name_en,
+      sector: meta.sector,
+      market: meta.market,
+      currency: data.currency,
+      date: last.date,
+      price: last.close,
+      chg: changePct(data.bars),
+      score,
+      fundamentals: fundScore,                 // { fund, grade, longTerm, ratios, reasons } | null
+      sentiment: sent ? { ...sent, score100: sentScore } : null,
+      news: rec.news,
+      bars: data.bars,
+    });
+    summary.push({
+      symbol: meta.symbol,
+      name_th: meta.name_th,
+      name_en: meta.name_en,
+      market: meta.market,
+      sector: meta.sector,
+      price: last.close,
+      chg: changePct(data.bars),
+      turnover,
+      date: last.date,
+      bars: data.bars.length,
+      tech: tech?.tech ?? null,
+      fund: fundScore?.fund ?? null,
+      mom: tech?.mom ?? null,
+      sentiment: sentScore,
+      composite: comp.composite,
+      signal: score?.signal ?? null,
+      rr: tech?.rr ?? null,
+      longTerm: fundScore?.longTerm ?? false,
+      grade: fundScore?.grade ?? null,
+      divYield: fundScore?.ratios?.divYield ?? null,
+      pe: fundScore?.ratios?.pe ?? null,
+      fundIncomplete: fundScore?.incomplete ?? null,
+      incomplete: !tech,
+    });
+    ok++;
+    const sig = score?.signal ?? '—';
+    const lt = fundScore?.longTerm ? '🌱' : '  ';
+    console.log(
+      `  ✓ ${meta.symbol.padEnd(7)} ${String(last.close).padStart(8)}  ` +
+        `T${String(tech?.tech ?? '—').padStart(3)} F${String(fundScore?.fund ?? '—').padStart(3)} ` +
+        `→ ${String(comp.composite ?? '—').padStart(3)} ${lt} ${sig}`
+    );
   }
 
   summary.sort((a, b) => a.symbol.localeCompare(b.symbol));
@@ -146,6 +239,7 @@ async function main() {
   const advancers = summary.filter((s) => s.chg > 0).length;
   const decliners = summary.filter((s) => s.chg < 0).length;
   const buyCount = summary.filter((s) => s.signal === 'BUY').length;
+  const longTermCount = summary.filter((s) => s.longTerm).length;
   const turnoverSum = summary.reduce((a, s) => a + (s.turnover || 0), 0);
 
   const market = {
@@ -154,6 +248,7 @@ async function main() {
     advancers,
     decliners,
     buy_signals: buyCount,
+    long_term_picks: longTermCount,
     turnover_total_mbaht: turnoverSum,
   };
 
@@ -163,6 +258,8 @@ async function main() {
     market,
     stocks: summary,
   });
+  const fundOk = summary.filter((s) => s.fund != null).length;
+  const sentOk = summary.filter((s) => s.sentiment != null).length;
   await writeJSON(resolve(OUT_DIR, 'meta.json'), {
     generated_at: nowISO(),
     date_ict: todayICT(),
@@ -170,12 +267,30 @@ async function main() {
     ok,
     failed: failures.length,
     failures,
-    phase: 1,
-    note: 'EOD + technical indicators + technical scoring/signals (พื้นฐาน/ข่าว มาใน Phase 2)',
+    phase: 2,
+    fundamentals_ok: fundOk,
+    sentiment_ok: sentOk,
+    sentiment_enabled: hasSentimentKey(),
+    note: 'EOD + technical + fundamentals + long-term flag + composite (sentiment เปิดเมื่อมี ANTHROPIC_API_KEY)',
   });
 
   console.log(`\n=== สรุป: สำเร็จ ${ok}/${targets.length} | ล้มเหลว ${failures.length} ===`);
   console.log(`เขียนผลที่: ${OUT_DIR}`);
+
+  // --- STEP 5: แจ้งเตือน (FR-ALERT) — สรุปรายวัน + สัญญาณเปลี่ยน ---
+  try {
+    const r = await runAlerts({ date: todayICT(), market, stocks: summary, prevStocks, dry: args.dryAlerts });
+    if (r.dry) {
+      console.log(`\nSTEP 5 — แจ้งเตือน (dry-run, สัญญาณเปลี่ยน ${r.changes} ตัว):\n${'-'.repeat(48)}\n${r.text}\n${'-'.repeat(48)}`);
+    } else if (r.sent) {
+      console.log(`\nSTEP 5 — ส่ง Telegram สำเร็จ (${r.parts} ข้อความ, สัญญาณเปลี่ยน ${r.changes} ตัว)`);
+    } else {
+      console.log(`\nSTEP 5 — ข้ามแจ้งเตือน (ไม่มี TELEGRAM_BOT_TOKEN/CHAT_ID) — จะทำงานเมื่อตั้ง Secret บน Actions`);
+    }
+  } catch (e) {
+    console.warn(`\n⚠ STEP 5 แจ้งเตือนล้มเหลว (ไม่กระทบข้อมูล): ${e.message}`);
+  }
+
   if (failures.length && ok === 0) process.exit(1); // ถือว่า fail ถ้าไม่ได้อะไรเลย
 }
 
