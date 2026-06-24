@@ -39,6 +39,32 @@ tbody tr:hover{background:rgba(59,130,246,.06);cursor:pointer}
 .navlink:hover{color:var(--txt);background:rgba(255,255,255,.04)}
 .navlink.active{color:#fff;background:linear-gradient(90deg,rgba(16,209,142,.18),rgba(59,130,246,.18));border:1px solid var(--border)}
 .disclaimer{font-size:11px;color:#5b6c87}
+
+/* ---- form controls (แก้ dropdown พื้นขาว ตัวอักษรเทา มองไม่เห็น) ---- */
+select{color:var(--txt);background-color:var(--card2);cursor:pointer}
+select:focus{outline:none;border-color:var(--accent)}
+/* popup รายการตัวเลือก: บังคับพื้นเข้ม ตัวอักษรสว่าง (เดิม browser ใช้พื้นขาว) */
+select option,select optgroup{background:#0f1623;color:var(--txt)}
+select option:checked{background:#1c2c45;color:#fff}
+
+/* ---- ช่องค้นหา ---- */
+.search{background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--txt);
+  padding:9px 12px 9px 34px;font-family:inherit;font-size:14px;width:100%}
+.search::placeholder{color:var(--muted)}
+.search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(16,209,142,.12)}
+.search-wrap{position:relative}
+.search-wrap::before{content:'🔍';position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.6;pointer-events:none}
+
+/* ---- ตัวแบ่งหน้า (pagination) ---- */
+.pager{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.pager button{min-width:34px;height:34px;padding:0 9px;border-radius:9px;border:1px solid var(--border);
+  background:var(--card2);color:var(--txt);font-weight:600;font-size:13px;font-family:inherit;cursor:pointer;transition:.15s}
+.pager button:hover:not(:disabled):not(.active){border-color:var(--accent);color:var(--accent)}
+.pager button.active{background:linear-gradient(90deg,rgba(16,209,142,.25),rgba(59,130,246,.25));border-color:var(--accent);color:#fff;cursor:default}
+.pager button:disabled{opacity:.35;cursor:default}
+.pager .gap{color:var(--muted);padding:0 2px}
+.pageinfo{color:var(--muted);font-size:12px}
+
 ::-webkit-scrollbar{height:8px;width:8px}
 ::-webkit-scrollbar-thumb{background:#243149;border-radius:8px}
 .fade-in{animation:fade .4s ease}

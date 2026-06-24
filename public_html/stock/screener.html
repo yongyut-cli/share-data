@@ -27,6 +27,9 @@
   </header>
 
   <div class="card p-4 mb-4 fade-in">
+    <div class="search-wrap mb-3">
+      <input id="fSearch" type="text" class="search" placeholder="ค้นหาด้วยชื่อย่อ / ชื่อบริษัท (เช่น PTT, ปตท., bank)" autocomplete="off">
+    </div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
       <label class="text-sm">เซกเตอร์
         <select id="fSector" class="w-full mt-1 bg-white/5 rounded-lg p-2 border border-white/10"></select></label>
@@ -48,9 +51,9 @@
   </div>
 
   <div class="card p-4 fade-in">
-    <div class="flex justify-between mb-2">
+    <div class="flex justify-between mb-2 items-center flex-wrap gap-2">
       <h2 class="font-bold">ผลการคัดกรอง — <span id="cnt">0</span> ตัว</h2>
-      <span class="disclaimer">คลิกแถวเพื่อดูรายตัว</span>
+      <span class="pageinfo" id="pginfo"></span>
     </div>
     <div class="overflow-x-auto">
       <table><thead><tr>
@@ -58,6 +61,7 @@
         <th>เทคนิค</th><th>พื้นฐาน</th><th>ปันผล</th><th>ถือยาว</th><th>สัญญาณ</th>
       </tr></thead><tbody id="tb"></tbody></table>
     </div>
+    <div class="pager" id="pager"></div>
   </div>
   <p class="disclaimer text-center mt-6">
     ข้อมูลราคา EOD + งบการเงินจริง · เทคนิค + พื้นฐาน (Phase 2) · ⚠️ ไม่ใช่คำแนะนำการลงทุน
@@ -75,33 +79,43 @@ READY.then(() => {
   document.getElementById('fDiv').oninput=e=>document.getElementById('vDiv').textContent=e.target.value;
   document.getElementById('fMom').oninput=e=>document.getElementById('vMom').textContent=e.target.value;
 
-  function apply(){
+  // คัด+เรียง ตามฟิลเตอร์ (ช่องค้นหาจัดการแยกใน attachPagedTable)
+  function filtered(){
     const sec=fSector.value, sig=document.getElementById('fSignal').value;
     const sc=+document.getElementById('fScore').value, mm=+document.getElementById('fMom').value;
     const fn=+document.getElementById('fFund').value, dv=+document.getElementById('fDiv').value;
     const lt=document.getElementById('fLT').checked;
-    const rows=STOCKS.filter(s=>(!sec||s.sector===sec)&&(!sig||s.signal===sig)
+    return STOCKS.filter(s=>(!sec||s.sector===sec)&&(!sig||s.signal===sig)
         &&(s.comp??0)>=sc&&(s.mom??0)>=mm&&(s.fund??0)>=fn&&(s.div??0)>=dv&&(!lt||s.longTerm))
       .sort((a,b)=>(b.comp??0)-(a.comp??0));
-    document.getElementById('cnt').textContent=rows.length;
-    document.getElementById('tb').innerHTML=rows.map(s=>{
-      const m=SIGNAL_META[s.signal];
-      const chg=(s.chg>=0?'+':'')+fmtNum(s.chg)+'%';
-      return `<tr onclick="location.href='detail.html?sym=${s.sym}'">
-        <td><b>${s.sym}</b> <span class="disclaimer">${s.name}</span></td>
-        <td class="muted">${s.sector}</td><td>${fmtNum(s.price)}</td>
-        <td class="${s.chg>=0?'up':'down'}">${chg}</td>
-        <td><div class="flex items-center gap-2"><b>${s.comp ?? '—'}</b>
-          <div class="scorebar w-14"><i style="width:${s.comp??0}%;background:${scoreColor(s.comp)}"></i></div></div></td>
-        <td style="color:${scoreColor(s.tech)}">${s.tech ?? '—'}</td>
-        <td style="color:${scoreColor(s.fund)}">${s.fund ?? '—'}${s.grade?` <span class="disclaimer">${s.grade}</span>`:''}</td>
-        <td>${s.div!=null?fmtNum(s.div,1)+'%':'—'}</td>
-        <td class="text-center">${s.longTerm?'🌱':''}</td>
-        <td><span class="chip ${m.cls}">${m.label}</span></td></tr>`;
-    }).join('')||'<tr><td colspan="10" class="text-center muted py-6">ไม่พบหุ้นตามเงื่อนไข</td></tr>';
   }
-  els.forEach(e=>e.addEventListener('input',apply));
-  apply();
+  const renderRows=rows=>rows.map(s=>{
+    const m=SIGNAL_META[s.signal];
+    const chg=(s.chg>=0?'+':'')+fmtNum(s.chg)+'%';
+    return `<tr onclick="location.href='detail.html?sym=${s.sym}'">
+      <td><b>${s.sym}</b> <span class="disclaimer">${s.name}</span></td>
+      <td class="muted">${s.sector}</td><td>${fmtNum(s.price)}</td>
+      <td class="${s.chg>=0?'up':'down'}">${chg}</td>
+      <td><div class="flex items-center gap-2"><b>${s.comp ?? '—'}</b>
+        <div class="scorebar w-14"><i style="width:${s.comp??0}%;background:${scoreColor(s.comp)}"></i></div></div></td>
+      <td style="color:${scoreColor(s.tech)}">${s.tech ?? '—'}</td>
+      <td style="color:${scoreColor(s.fund)}">${s.fund ?? '—'}${s.grade?` <span class="disclaimer">${s.grade}</span>`:''}</td>
+      <td>${s.div!=null?fmtNum(s.div,1)+'%':'—'}</td>
+      <td class="text-center">${s.longTerm?'🌱':''}</td>
+      <td><span class="chip ${m.cls}">${m.label}</span></td></tr>`;
+  }).join('');
+
+  const search=document.getElementById('fSearch');
+  const table=attachPagedTable({
+    source:()=>{ const r=searchStocks(filtered(),search.value); document.getElementById('cnt').textContent=r.length; return r; },
+    render:renderRows, body:document.getElementById('tb'),
+    pager:document.getElementById('pager'), info:document.getElementById('pginfo'),
+    perPage:25, cols:10,
+  });
+  // ฟิลเตอร์ทุกตัว (รวมช่องค้นหา) → รีเฟรชกลับหน้า 1
+  els.forEach(e=>e.addEventListener('input',table.refresh));
+  search.addEventListener('input',table.refresh);
+  table.refresh();
 }).catch(showDataError);
 </script>
 </body>

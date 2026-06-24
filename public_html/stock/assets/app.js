@@ -136,5 +136,70 @@ async function apiPost(action, payload = {}) {
   return d;
 }
 
+// ============================================================
+//  ค้นหา + แบ่งหน้า (ใช้ร่วมกัน — index/screener) สำหรับ master list ใหญ่ (~800 ตัว)
+// ============================================================
+
+/** กรองด้วยคำค้น: symbol / ชื่อไทย / ชื่ออังกฤษ (ไม่สนตัวพิมพ์) */
+function searchStocks(rows, term) {
+  const q = (term || '').trim().toLowerCase();
+  if (!q) return rows;
+  return rows.filter((s) =>
+    (s.sym && s.sym.toLowerCase().includes(q)) ||
+    (s.name && s.name.toLowerCase().includes(q)) ||
+    (s.name_en && s.name_en.toLowerCase().includes(q)));
+}
+
+/** วาดปุ่มแบ่งหน้าแบบมีหน้าต่าง (… ย่อเมื่อหน้าเยอะ) */
+function renderPager(el, page, pages, go) {
+  if (!el) return;
+  if (pages <= 1) { el.innerHTML = ''; return; }
+  const btn = (label, p, { active = false, disabled = false } = {}) =>
+    `<button ${disabled ? 'disabled' : ''} class="${active ? 'active' : ''}" data-p="${p}">${label}</button>`;
+  const gap = '<span class="gap">…</span>';
+  let html = btn('‹', page - 1, { disabled: page <= 1 });
+  const win = [];
+  const push = (p) => { if (p >= 1 && p <= pages && !win.includes(p)) win.push(p); };
+  push(1); push(2);
+  for (let p = page - 1; p <= page + 1; p++) push(p);
+  push(pages - 1); push(pages);
+  win.sort((a, b) => a - b);
+  let prev = 0;
+  for (const p of win) { if (p - prev > 1) html += gap; html += btn(p, p, { active: p === page }); prev = p; }
+  html += btn('›', page + 1, { disabled: page >= pages });
+  el.innerHTML = html;
+  el.querySelectorAll('button[data-p]').forEach((b) =>
+    b.addEventListener('click', () => { const p = +b.dataset.p; if (p >= 1 && p <= pages) go(p); }));
+}
+
+/**
+ * ผูกตาราง + แบ่งหน้า + ช่องค้นหาเข้าด้วยกัน
+ * opts: { source():rows[], render(rows):html, body, pager, info?, search?, perPage=25, cols=12 }
+ * คืน { refresh } เรียกเมื่อฟิลเตอร์เปลี่ยน (รีเซ็ตไปหน้า 1)
+ */
+function attachPagedTable(opts) {
+  const { render, body, pager, info, search, perPage = 25, cols = 12 } = opts;
+  let page = 1;
+  function show() {
+    let rows = opts.source();
+    if (search) rows = searchStocks(rows, search.value);
+    const pages = Math.max(1, Math.ceil(rows.length / perPage));
+    if (page > pages) page = pages;
+    if (page < 1) page = 1;
+    const start = (page - 1) * perPage;
+    const slice = rows.slice(start, start + perPage);
+    body.innerHTML = slice.length
+      ? render(slice)
+      : `<tr><td colspan="${cols}" class="text-center muted py-6">ไม่พบหุ้นตามเงื่อนไข</td></tr>`;
+    if (info) info.textContent = rows.length
+      ? `${start + 1}–${Math.min(start + perPage, rows.length)} จาก ${rows.length} ตัว`
+      : '0 ตัว';
+    renderPager(pager, page, pages, (p) => { page = p; show(); body.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); });
+  }
+  const refresh = () => { page = 1; show(); };
+  if (search) search.addEventListener('input', refresh);
+  return { refresh, show };
+}
+
 // promise กลางที่ทุกหน้า await ก่อน render
 const READY = bootstrap();

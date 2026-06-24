@@ -12,7 +12,7 @@
 | เชื่อม frontend ↔ ข้อมูลจริง | 🟢 **เสร็จแล้ว** | app.js fetch summary/prices JSON |
 | Indicators + Scoring | 🟢 **เสร็จแล้ว** (Phase 1) | SMA/EMA/RSI/MACD/BB/ADX/ATR/Stoch/OBV + คะแนน+สัญญาณ |
 | พื้นฐาน (งบการเงิน) + ป้ายถือยาว | 🟢 **เสร็จแล้ว** (Phase 2) | P/E,P/BV,ROE,D/E,ปันผล,กำไรโต + คะแนน+เกรด+composite |
-| ข่าว + AI sentiment | 🟢 **Gemini ทำงานจริงบน CI แล้ว** (Phase 2) · 🟡 ติดที่แหล่งข่าว | รองรับ **Gemini (Google AI Studio)** / Claude · ยืนยันบน GitHub Actions 2026-06-24 (run #28087589335) STEP 3 "วิเคราะห์ด้วย Gemini (gemini-2.5-flash)" · แต่ข่าว Yahoo .BK แทบไม่มี/ไม่ตรงตัว (ดู audit) |
+| ข่าว + AI sentiment | 🟢 **เสร็จแล้ว** (Phase 2) · แหล่งข่าวไทยแก้แล้ว | รองรับ **Gemini (Google AI Studio)** / Claude · ยืนยันบน GitHub Actions 2026-06-24 (run #28087589335) · **เปลี่ยนแหล่งข่าวเป็น Google News RSS ภาษาไทย** (2026-06-24) → ข่าวตรงบริษัทจริง hit-rate ~100% (เดิม Yahoo .BK ได้ 3/58 และผิดบริษัท) |
 | ระบบ login (FR-AUTH) | 🟢 **เสร็จแล้ว** | PHP session gate กั้นทั้ง /stock/ (html+js+json), hash รหัสผ่าน, disclaimer |
 | พอร์ต + watchlist (FR-PORT) | 🟢 **เสร็จแล้ว** (Phase 3) | เก็บจริงต่อผู้ใช้ผ่าน api.php, P/L EOD, สัดส่วน+กระจายเซกเตอร์, watchlist |
 | แจ้งเตือน (FR-ALERT) | 🟢 **ยืนยันส่งจริงแล้ว** (Phase 3) | Telegram สรุปรายวัน+สัญญาณเปลี่ยน · ทดสอบบน GitHub Actions 2026-06-24 (run #28087589335): STEP 5 "ส่ง Telegram สำเร็จ" ข้อความเด้งจริง |
@@ -87,7 +87,7 @@
 
 **Phase 2 — เก็บตก (ถ้าต้องการ)**
 - [x] ตั้ง Secret LLM บน GitHub → เปิด AI sentiment อัตโนมัติ (ใช้ `GEMINI_API_KEY`, ตั้งแล้ว 2026-06-24)
-- [ ] 🔴 **หาแหล่งข่าวไทยรายตัวที่ดีกว่า Yahoo** — คอขวดตัวจริงของ sentiment: ทดสอบ 58 ตัว มีข่าวแค่ 3 ตัว และทั้ง 3 เป็นข่าวคนละบริษัท (ดู audit) · ตัวเลือก: SET API / ข่าวหุ้นไทย RSS / settrade
+- [x] ✅ **แก้แหล่งข่าวไทยรายตัวแล้ว** (2026-06-24) — เปลี่ยนจาก Yahoo search → **Google News RSS ภาษาไทย** (`pipeline/lib/news.js`, ฟรี ไม่ต้องใช้ key, parse XML เอง) · ทดสอบ PTT/ADVANC/GLOBAL/TRUE/DELTA/KCE = ได้ข่าวตรงบริษัทจากแหล่งหุ้นไทยจริง (HoonVision, มิติหุ้น, Thunhoon, ข่าวหุ้นธุรกิจ) **ตัวละ 5–6 ข่าว** · 3 ตัวที่เคยพัง (ADVANC/GLOBAL/TRUE) ตอนนี้ถูกหมด · `run.js` เรียก `fetchNewsTH()` แทน
 
 **Phase 3 — พอร์ต + แจ้งเตือน + ความปลอดภัย** ✅ เสร็จแล้ว (2026-06-24)
 - [x] **ระบบ login (FR-AUTH)** — เสร็จ (ดูหัวข้อ 🔐 ด้านบน)
@@ -140,9 +140,10 @@
 
 ## ค้างไว้ / ต้องทำ
 - [x] **push ขึ้น GitHub:** `origin` = `git@github.com:yongyut-cli/share-data.git` · local `main` sync กับ `origin/main` แล้ว (push ไปแล้ว 3 commit: Phase 0/1/2+3)
-- [ ] **commit ไฟล์ที่แก้ค้าง:** ปัจจุบันยังมี `PROGRESS.md` + `.github/workflows/eod.yml` ที่แก้แล้วแต่ยังไม่ commit/push
+- [x] **แหล่งข่าวไทย + frontend ค้นหา/แบ่งหน้า:** commit + push แล้ว 2026-06-24 (`pipeline/lib/news.js`, `run.js`, frontend search/pagination)
+- [x] **frontend รองรับ master list ใหญ่:** เพิ่มช่องค้นหา (ชื่อย่อ/ไทย/อังกฤษ) + แบ่งหน้า 25 ตัว/หน้า บน dashboard + screener + แก้ dropdown พื้นขาวมองไม่เห็น (`app.js`/`style.css`/`index.html`/`screener.html`)
 - [ ] (ทางเลือก) ตั้ง Secrets `FTP_HOST/FTP_USER/FTP_PASS` ถ้าจะ deploy ขึ้น Hostinger ผ่าน FTP
-- [ ] ขยาย master list ให้ครบ ~800 ตัว + ระบบอัปเดตรายชื่ออัตโนมัติเดือนละครั้ง
+- [ ] ขยาย master list ให้ครบ ~800 ตัว + ระบบอัปเดตรายชื่ออัตโนมัติเดือนละครั้ง — **frontend พร้อมแล้ว** (ค้นหา/แบ่งหน้า) · เหลือ (ก) หาแหล่งรายชื่อทั้งตลาด SET/mai (ข) ประเมินเวลา/อัตรา rate-limit ของ Yahoo+Google News เมื่อรัน 800 ตัว/รอบ + ต้นทุน token sentiment — ดูหมายเหตุท้ายไฟล์
 
 ---
 
@@ -196,7 +197,7 @@
 
 **ทดสอบจริง (php -S, 10 เคส) ผ่านหมด:** root→/stock/ · html ไม่ล็อกอิน 302→login · summary.json ไม่ล็อกอิน 403 · รหัสผิดแจ้ง error · รหัสถูก 302+Set-Cookie(HttpOnly) · ล็อกอินแล้ว html/json/js = 200 · traversal+เรียก .php ตรง = บล็อก · logout คืนสภาพต้องล็อกอินใหม่
 
-> ⚠️ มี **รหัสผ่านชั่วคราว** seed ไว้ (user `yongyut`) — เจ้าของต้องเปลี่ยนทันทีด้วย `tools/set-password.php`
+> ✅ เจ้าของเปลี่ยนรหัสผ่าน (user `yongyut`) จากค่า seed ชั่วคราวแล้ว 2026-06-24
 
 ---
 
@@ -213,12 +214,13 @@
 | เรียก API + ตอบไทย + parse JSON + composite | ✅ ครบ (ทดสอบแยก: PTT +0.9, TRUE −0.9, KBANK +0.9 แม่นยำ) |
 | degrade ซื่อสัตย์ | ✅ ไม่มี key → null; key fail → retry แล้ว skip |
 
-⚠️ **ปัญหาที่เจอ — แหล่งข่าว Yahoo ใช้ไม่ได้กับหุ้นไทย:** จาก 58 ตัว มีข่าวแค่ **3 ตัว** และทั้ง 3 เป็นข่าว **คนละบริษัท**:
-- ADVANC → ไปแมตช์ "Advanced Medical Solutions" (บริษัทการแพทย์ UK)
-- GLOBAL → ไปแมตช์การแข่งขัน Microsoft Excel
-- TRUE → ไปแมตช์ข่าวเงินเฟ้อสหรัฐฯ
+⚠️ **(เดิม) แหล่งข่าว Yahoo ใช้ไม่ได้กับหุ้นไทย:** จาก 58 ตัว มีข่าวแค่ **3 ตัว** และทั้ง 3 เป็นข่าว **คนละบริษัท** (ADVANC→Advanced Medical Solutions UK, GLOBAL→การแข่งขัน Excel, TRUE→เงินเฟ้อสหรัฐฯ) · Gemini จับได้ว่าไม่เกี่ยวและให้ 0 (ถูกต้อง ไม่มั่ว)
 
-Gemini **จับได้ว่าข่าวไม่เกี่ยวข้องและให้คะแนน 0 พร้อมอธิบายเหตุผล** (พฤติกรรมถูกต้อง ไม่มั่ว) → พิสูจน์ว่า AI ดี แต่ **ต้องเปลี่ยนแหล่งข่าวเป็นของไทยรายตัว** sentiment จึงจะมีความหมาย (งานเก็บตก Phase 2)
+✅ **แก้แล้ว 2026-06-24 — เปลี่ยนเป็น Google News RSS ภาษาไทย** (`pipeline/lib/news.js`):
+- query ด้วยชื่อไทย + "หุ้น" + symbol, region TH (`hl=th&gl=TH&ceid=TH:th`), ฟรี ไม่ต้องใช้ key
+- ทดสอบ PTT/ADVANC/GLOBAL/TRUE/DELTA/KCE → ได้ข่าว **ตรงบริษัท** จากแหล่งหุ้นไทยจริง (HoonVision, มิติหุ้น, Thunhoon, ข่าวหุ้นธุรกิจ, Share2Trade) ตัวละ 5–6 ข่าว
+- รัน `node run.js --limit 3` จริง (เขียน OUT_DIR แยก ไม่แตะ data สด): PTT/PTTEP/PTTGC ได้ข่าวไทยครบตัวละ 6 ข่าว ✅
+- sentiment ที่ป้อนเข้า LLM จึงมีความหมายจริง (ไม่ใช่ข่าวคนละบริษัทอีกต่อไป)
 
 **การตั้งค่า:** local รันได้ผ่าน `.env` (gitignore แล้ว, auto-load ใน `run.js`) · GitHub Actions ตั้ง Secret `GEMINI_API_KEY` + `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` แล้ว (2026-06-24) · ดูคู่มือ [`SETUP-SECRETS.md`](./SETUP-SECRETS.md)
 

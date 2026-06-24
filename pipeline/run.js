@@ -12,7 +12,8 @@
 //   OUT_DIR=/path node pipeline/run.js    กำหนดโฟลเดอร์ผลลัพธ์เอง
 import { resolve } from 'node:path';
 import { loadMaster, REPO_ROOT } from './fetch-master.js';
-import { fetchEOD, fetchFundamentals, fetchNews } from './lib/yahoo.js';
+import { fetchEOD, fetchFundamentals } from './lib/yahoo.js';
+import { fetchNewsTH } from './lib/news.js';
 import { analyze, compose } from './lib/scoring.js';
 import { scoreFundamentals } from './lib/fundamentals.js';
 import { analyzeSentimentBatch, sentimentToScore, hasSentimentKey, sentimentProvider } from './lib/sentiment.js';
@@ -116,7 +117,8 @@ async function main() {
       }
       if (args.news) {
         try {
-          news = await fetchNews(s.symbol, { names: [s.name_en, s.name_th] });
+          // ข่าวหุ้นไทยรายตัวจาก Google News RSS (ไทย) — ตรงบริษัทกว่า Yahoo มาก (ดู PROGRESS audit)
+          news = await fetchNewsTH(s.symbol, { name_th: s.name_th, name_en: s.name_en });
         } catch { /* เงียบ — ข่าวเป็นออปชัน */ }
       }
       return { s, data, fund, news };

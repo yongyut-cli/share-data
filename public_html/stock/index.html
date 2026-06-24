@@ -92,9 +92,15 @@
 
   <!-- FULL TABLE -->
   <div class="card p-4 fade-in mb-4">
-    <div class="flex items-center justify-between mb-2">
+    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
       <h2 class="font-bold">ตารางวิเคราะห์ (เรียงตามคะแนนรวม)</h2>
-      <a href="screener.html" class="text-sm" style="color:var(--accent2)">ดูทั้งหมด / คัดกรอง →</a>
+      <a href="screener.html" class="text-sm" style="color:var(--accent2)">คัดกรองขั้นสูง →</a>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-2 items-center mb-3">
+      <div class="search-wrap">
+        <input id="tSearch" type="text" class="search" placeholder="ค้นหาหุ้น (ชื่อย่อ / ชื่อบริษัท)" autocomplete="off">
+      </div>
+      <span class="pageinfo sm:text-right" id="pginfo"></span>
     </div>
     <div class="overflow-x-auto">
       <table>
@@ -105,6 +111,7 @@
         <tbody id="tbody"></tbody>
       </table>
     </div>
+    <div class="pager" id="pager"></div>
   </div>
 
   <!-- BACKTEST — คุณภาพสัญญาณ -->
@@ -168,8 +175,9 @@ READY.then(() => {
         <div class="text-xs muted mt-1">พื้นฐาน ${s.fund ?? '—'}${s.grade?` (${s.grade})`:''}</div></div></a>`
     ).join('') || '<div class="muted text-sm p-2">— ยังไม่มีตัวที่ผ่านเกณฑ์ —</div>';
 
-  // ----- table -----
-  document.getElementById('tbody').innerHTML = STOCKS.slice().sort(byComp).map(s=>{
+  // ----- table (ค้นหา + แบ่งหน้า รองรับ master list ใหญ่) -----
+  const sortedAll = STOCKS.slice().sort(byComp);
+  const renderRows = rows => rows.map(s=>{
     const m = SIGNAL_META[s.signal];
     const chg = (s.chg>=0?'+':'')+fmtNum(s.chg)+'%';
     return `<tr onclick="location.href='detail.html?sym=${s.sym}'">
@@ -185,6 +193,12 @@ READY.then(() => {
       <td><span class="chip ${m.cls}">${m.label}</span></td>
     </tr>`;
   }).join('');
+  attachPagedTable({
+    source:()=>sortedAll, render:renderRows,
+    body:document.getElementById('tbody'), pager:document.getElementById('pager'),
+    info:document.getElementById('pginfo'), search:document.getElementById('tSearch'),
+    perPage:25, cols:9,
+  }).refresh();
 
   // ----- heatmap (size = มูลค่าซื้อขายล่าสุด, สี = คะแนนรวม) -----
   const hm = echarts.init(document.getElementById('heatmap'), null, {renderer:'canvas'});
