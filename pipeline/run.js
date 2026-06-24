@@ -176,12 +176,14 @@ async function main() {
     const last = data.bars[data.bars.length - 1];
     const turnover = Math.round((last.close * last.volume) / 1e6);
 
-    // intraday (--no-fund/--no-news): คงค่างบ/sentiment/ข่าวจากรอบ EOD ล่าสุดไว้ ไม่ทับด้วย null
-    const prev = (!args.fund || !args.news) ? await readPrevPrice(meta.symbol) : null;
+    // อ่านรอบก่อนเสมอ — ใช้ทั้ง (ก) intraday ที่ไม่ดึงงบ/ข่าว และ (ข) carry-forward sentiment เมื่อ LLM ล้มเหลว/โควต้าหมด
+    const prev = await readPrevPrice(meta.symbol);
     const fundScore = args.fund ? rec.fundScore : (prev?.fundamentals ?? null);
-    const sent = args.news
-      ? (sentiments[meta.symbol] ?? null)                   // { score, summary, risks } | null
-      : (prev?.sentiment ?? null);                          // { score, summary, risks, score100 } | null
+    // sentiment: ใช้ผลรอบนี้ก่อน → ถ้าไม่มี (เช่นโควต้า Gemini หมด) คงค่ารอบก่อนไว้ (ติดธง stale) แทนล้างเป็น null
+    const freshSent = args.news ? sentiments[meta.symbol] : null;
+    const sent = freshSent
+      ? freshSent                                           // { score, summary, risks }
+      : (prev?.sentiment ? { ...prev.sentiment, stale: true } : null);
     const newsArr = args.news ? rec.news : (prev?.news ?? []);
     const sentScore = sent ? sentimentToScore(sent.score) : null; // 0..100 | null
     const uptrend = tech?.indicators?.ema200 != null ? last.close > tech.indicators.ema200 : null;

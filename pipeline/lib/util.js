@@ -30,6 +30,7 @@ export async function withRetry(fn, { tries = 4, baseDelay = 800, label = '' } =
       return await fn();
     } catch (err) {
       lastErr = err;
+      if (err.quota) throw err; // โควต้า/rate-limit รายวัน — retry ไม่ช่วย ซ้ำยังเปลือง quota ฟรี
       const wait = baseDelay * 2 ** i + Math.floor(Math.random() * 250);
       if (i < tries - 1) {
         console.warn(`  ↻ retry ${i + 1}/${tries - 1} ${label} หลัง ${wait}ms — ${err.message}`);

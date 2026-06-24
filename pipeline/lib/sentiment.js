@@ -4,7 +4,7 @@
 //     · ไม่มี Gemini แต่มี ANTHROPIC_API_KEY      → ใช้ Claude
 //   - คุมต้นทุน token: รวมข่าวหลายตัวเป็น batch เดียว, ใช้รุ่นเล็ก (flash/haiku)
 //   - ทนข้อมูลขาด/ไม่มี key: คืน null อย่างซื่อสัตย์ (ไม่ปลอมคะแนน)
-import { withRetry } from './util.js';
+import { withRetry, sleep } from './util.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
@@ -38,13 +38,42 @@ export function sentimentProvider() {
  * @returns {Promise<Record<string,{score, summary, risks}>>} key = symbol
  *          score: -1..+1 (>0 บวก, <0 ลบ) ; คืน {} ถ้าไม่มี key/ข่าว
  */
+// แบ่งหุ้นเป็นกลุ่มต่อ 1 คำเรียก — กัน output ทะลุ maxOutputTokens (JSON ถูกตัด parse ไม่ได้)
+//   ค่าเริ่มต้น 12 → 58 หุ้น = ~5 คำเรียก/รอบ ซึ่งอยู่ใต้เพดาน Gemini free tier (20 requests/วัน/รุ่น)
+const SENTIMENT_CHUNK = Number(process.env.SENTIMENT_CHUNK) || 12;
+// เว้นจังหวะระหว่าง chunk — กัน per-minute rate-limit
+const SENTIMENT_GAP_MS = Number(process.env.SENTIMENT_GAP_MS) || 5000;
+
 export async function analyzeSentimentBatch(batch) {
   const p = provider();
   if (!p) return {}; // ไม่มี key → ข้าม (sentiment = null ทุกตัว)
   const withNews = batch.filter((b) => b.news && b.news.length);
   if (!withNews.length) return {};
 
-  const items = withNews.map((b) => ({
+  // แบ่งเป็น chunk แล้ววิเคราะห์ทีละกลุ่ม — กลุ่มที่พังไม่ทำให้ทั้ง batch ล่ม
+  const out = {};
+  for (let i = 0; i < withNews.length; i += SENTIMENT_CHUNK) {
+    const chunk = withNews.slice(i, i + SENTIMENT_CHUNK);
+    try {
+      Object.assign(out, await analyzeChunk(p, chunk));
+    } catch (e) {
+      if (e.quota) {
+        // โควต้ารายวันหมด (429 RESOURCE_EXHAUSTED) — chunk ที่เหลือก็จะ 429 เหมือนกัน
+        // หยุดทั้ง step ทันที ไม่ retry/ยิงต่อให้เปลือง request ฟรี
+        console.warn(`  ⚠ sentiment: โควต้า ${p.name} หมด (429) — ข้าม ${withNews.length - Object.keys(out).length} ตัวที่เหลือ; ที่ได้แล้ว ${Object.keys(out).length} ตัว`);
+        break;
+      }
+      console.warn(`  ⚠ sentiment: เรียก ${p.name} ไม่สำเร็จ (${chunk.map((c) => c.symbol).join(',')}): ${e.message}`);
+    }
+    // เว้นจังหวะก่อน chunk ถัดไป (ยกเว้น chunk สุดท้าย) — อยู่ใต้เพดาน per-minute
+    if (i + SENTIMENT_CHUNK < withNews.length) await sleep(SENTIMENT_GAP_MS);
+  }
+  return out;
+}
+
+/** วิเคราะห์ sentiment 1 กลุ่ม (≤ SENTIMENT_CHUNK ตัว) — โยน error (มี .quota=true ถ้าโดน 429) */
+async function analyzeChunk(p, chunk) {
+  const items = chunk.map((b) => ({
     symbol: b.symbol,
     name: b.name,
     headlines: b.news.map((n) => n.title).slice(0, 6),
@@ -58,14 +87,15 @@ export async function analyzeSentimentBatch(batch) {
     `ตอบกลับเป็น JSON อย่างเดียว รูปแบบ: ` +
     `{"<symbol>":{"score":<number>,"summary":"<ไทย>","risks":"<ไทย|>"}, ...}`;
 
+  // retry เฉพาะ error ชั่วคราว (เช่น 503/timeout) — แต่ 429 (โควต้า) จะโยนทันทีไม่ retry (ดู callGemini)
   const text = await withRetry(
     () => (p.name === 'gemini' ? callGemini(p.key, prompt) : callAnthropic(p.key, prompt)),
-    { tries: 3, baseDelay: 1500, label: 'sentiment' }
+    { tries: 4, baseDelay: 4000, label: 'sentiment' }
   );
 
   const parsed = extractJSON(text);
   if (!parsed) {
-    console.warn(`  ⚠ sentiment: parse JSON จาก ${p.name} ไม่ได้`);
+    console.warn(`  ⚠ sentiment: parse JSON จาก ${p.name} ไม่ได้ (${chunk.map((c) => c.symbol).join(',')})`);
     return {};
   }
   // normalize score ให้อยู่ใน -1..1
@@ -84,10 +114,21 @@ async function callGemini(key, prompt) {
     headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 2048, temperature: 0.2, responseMimeType: 'application/json' },
+      // ปิด thinking (gemini-2.5-flash) — กัน thinking tokens กิน budget จน JSON ถูกตัด (finishReason MAX_TOKENS)
+      // + เพิ่ม maxOutputTokens ให้พอกับ JSON หลายบริษัท
+      generationConfig: {
+        maxOutputTokens: 4096,
+        temperature: 0.2,
+        responseMimeType: 'application/json',
+        thinkingConfig: { thinkingBudget: 0 },
+      },
     }),
   });
-  if (!res.ok) throw new Error(`Gemini API HTTP ${res.status}: ${(await res.text()).slice(0, 160)}`);
+  if (!res.ok) {
+    const err = new Error(`Gemini API HTTP ${res.status}: ${(await res.text()).slice(0, 160)}`);
+    if (res.status === 429) err.quota = true; // โควต้า/rate-limit → ไม่ต้อง retry (ดู withRetry)
+    throw err;
+  }
   const data = await res.json();
   return data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') ?? '';
 }
@@ -103,7 +144,11 @@ async function callAnthropic(key, prompt) {
       messages: [{ role: 'user', content: prompt }],
     }),
   });
-  if (!res.ok) throw new Error(`Claude API HTTP ${res.status}: ${(await res.text()).slice(0, 160)}`);
+  if (!res.ok) {
+    const err = new Error(`Claude API HTTP ${res.status}: ${(await res.text()).slice(0, 160)}`);
+    if (res.status === 429) err.quota = true; // rate-limit → ไม่ retry
+    throw err;
+  }
   const data = await res.json();
   return data?.content?.[0]?.text ?? '';
 }
