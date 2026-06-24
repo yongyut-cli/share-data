@@ -12,7 +12,8 @@
 | เชื่อม frontend ↔ ข้อมูลจริง | 🟢 **เสร็จแล้ว** | app.js fetch summary/prices JSON |
 | Indicators + Scoring | 🟢 **เสร็จแล้ว** (Phase 1) | SMA/EMA/RSI/MACD/BB/ADX/ATR/Stoch/OBV + คะแนน+สัญญาณ |
 | พื้นฐาน (งบการเงิน) + ป้ายถือยาว | 🟢 **เสร็จแล้ว** (Phase 2) | P/E,P/BV,ROE,D/E,ปันผล,กำไรโต + คะแนน+เกรด+composite |
-| ข่าว + AI sentiment | 🟢 **เสร็จแล้ว** (Phase 2) · แหล่งข่าวไทยแก้แล้ว | รองรับ **Gemini (Google AI Studio)** / Claude · ยืนยันบน GitHub Actions 2026-06-24 (run #28087589335) · **เปลี่ยนแหล่งข่าวเป็น Google News RSS ภาษาไทย** (2026-06-24) → ข่าวตรงบริษัทจริง hit-rate ~100% (เดิม Yahoo .BK ได้ 3/58 และผิดบริษัท) |
+| ข่าว (ไทย) | 🟢 **เสร็จแล้ว** · ตรงบริษัทจริง | **Google News RSS ภาษาไทย** (2026-06-24) → ข่าวตรงบริษัท 6 ข่าว/ตัว hit-rate ~100% (เดิม Yahoo .BK ได้ 3/58 และผิดบริษัท) |
+| AI sentiment | 🟡 **โค้ดแก้แล้ว · ติดโควต้า** | **บั๊ก truncation แก้แล้ว** (commit `af27e47`, ได้ 48/58 ก่อนโควต้าหมด · เดิม 0/58) · ข้อจำกัด: Gemini free tier 20 req/วัน — ดู [🔧 audit รอบสอง](#-audit--fix-รอบสอง--sentiment-จริงๆ-คืน-0-ตัว-แก้แล้ว-2026-06-24) |
 | ระบบ login (FR-AUTH) | 🟢 **เสร็จแล้ว** | PHP session gate กั้นทั้ง /stock/ (html+js+json), hash รหัสผ่าน, disclaimer |
 | พอร์ต + watchlist (FR-PORT) | 🟢 **เสร็จแล้ว** (Phase 3) | เก็บจริงต่อผู้ใช้ผ่าน api.php, P/L EOD, สัดส่วน+กระจายเซกเตอร์, watchlist |
 | แจ้งเตือน (FR-ALERT) | 🟢 **ยืนยันส่งจริงแล้ว** (Phase 3) | Telegram สรุปรายวัน+สัญญาณเปลี่ยน · ทดสอบบน GitHub Actions 2026-06-24 (run #28087589335): STEP 5 "ส่ง Telegram สำเร็จ" ข้อความเด้งจริง |
@@ -227,6 +228,25 @@
 > ✅ **ยืนยันครบทั้ง 3 secret บน GitHub Actions แล้ว** 2026-06-24 (run #28087589335, ผ่าน 58/58):
 > - `GEMINI_API_KEY` → STEP 3 "วิเคราะห์ด้วย Gemini (gemini-2.5-flash)" (เคยขึ้น 503 จาก Google ระหว่าง retry แต่สุดท้ายผ่าน · `sentiment_ok:1`)
 > - `TELEGRAM_BOT_TOKEN`+`TELEGRAM_CHAT_ID` → STEP 5 "ส่ง Telegram สำเร็จ" ข้อความเด้งจริง
+
+## 🔧 audit + fix รอบสอง — sentiment จริงๆ คืน 0 ตัว (แก้แล้ว 2026-06-24)
+
+**ตรวจซ้ำพบว่า sentiment ไม่ทำงานจริงตามที่เคลม** — รัน `--all` แล้ว `sentiment_ok` เป็น **0/58** (ไม่ใช่แค่ 1) ทั้งบนเครื่องและบน CI (commit data `0634f73` ก็ `sentiment_ok:0`)
+
+**สาเหตุจริง (debug):**
+1. `gemini-2.5-flash` ใช้ thinking tokens → output JSON ถูกตัดกลาง (`finishReason: MAX_TOKENS`) parse ไม่ได้ทุกครั้ง
+2. `run.js` ส่งหุ้นที่มีข่าว **ทั้ง 58 ตัวเป็น batch เดียว** → output ทะลุ token แน่นอน
+3. Gemini **free tier จำกัด 20 requests/วัน/รุ่น** (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`) — retry 429 รัวๆ ยิ่งเปลืองโควต้า
+
+**แก้ (`pipeline/lib/sentiment.js`, `util.js`, `run.js` · commit `af27e47`):**
+- ปิด thinking (`thinkingBudget:0`) + เพิ่ม `maxOutputTokens` 2048→4096 → JSON ไม่ถูกตัด
+- chunk batch กลุ่มละ 12 (58 หุ้น = ~5 requests/รอบ อยู่ใต้เพดาน 20/วัน)
+- เจอ 429 → หยุดทั้ง step ทันที ไม่ retry เปลืองโควต้า
+- carry-forward: รอบ `--all` ถ้าดึง sentiment ไม่ได้ คงค่ารอบก่อน (ติดธง `stale`) แทนล้างเป็น null
+
+**ยืนยัน:** หลังแก้ รันได้ **sentiment 48/58** ก่อนโควต้ารายวันหมด (เดิม 0/58) → บั๊กหายจริง
+
+> ⚠️ **คงค้าง:** โควต้า Gemini free tier (20 req/วัน) ใช้หมดจากการ debug วันนี้ → sentiment ปัจจุบันยังเป็น null จนโควต้า reset · ข่าวไทย (Google News RSS) ลงครบแล้ว 6 ข่าว/ตัว · รอบ EOD ถัดไปบน CI (ใช้ ~5 req) จะเติม sentiment ให้เองถ้าไม่รัน key เดียวกันซ้ำในวันเดียว · ถ้าต้องการ sentiment ครบ 58 ทุกวันแน่นอน ควรพิจารณา (ก) เปิด billing Gemini หรือ (ข) ลดจำนวนหุ้นที่ส่ง LLM/วัน
 
 ## 🚀 deploy/CI log — 2026-06-24
 
