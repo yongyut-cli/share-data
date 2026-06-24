@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คัดกรองหุ้น — Thai Stock Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-5">
+  <header class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="w-10 h-10 rounded-xl grid place-items-center" style="background:linear-gradient(135deg,#10d18e,#3b82f6)"><span class="text-xl">📊</span></a>
+      <div><div class="font-bold text-lg">Thai Stock <span style="color:var(--accent)">Analyzer</span></div>
+      <div class="disclaimer">วิเคราะห์หุ้นไทย · EOD · ใช้ส่วนตัว</div></div>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a class="navlink" href="index.html">แดชบอร์ด</a>
+      <a class="navlink active" href="screener.html">คัดกรองหุ้น</a>
+      <a class="navlink" href="detail.html?sym=PTT">รายตัว</a>
+      <a class="navlink" href="portfolio.html">พอร์ต</a>
+    </nav>
+  </header>
+
+  <div class="card p-4 mb-4 fade-in">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+      <label class="text-sm">เซกเตอร์
+        <select id="fSector" class="w-full mt-1 bg-white/5 rounded-lg p-2 border border-white/10"></select></label>
+      <label class="text-sm">สัญญาณ
+        <select id="fSignal" class="w-full mt-1 bg-white/5 rounded-lg p-2 border border-white/10">
+          <option value="">ทั้งหมด</option><option>BUY</option><option>ACCUMULATE</option>
+          <option>HOLD</option><option>REDUCE</option><option>AVOID</option></select></label>
+      <label class="text-sm">คะแนนรวมขั้นต่ำ: <span id="vScore">0</span>
+        <input id="fScore" type="range" min="0" max="100" value="0" class="w-full mt-2"></label>
+      <label class="text-sm">ปันผลขั้นต่ำ (%): <span id="vDiv">0</span>
+        <input id="fDiv" type="range" min="0" max="8" step="0.5" value="0" class="w-full mt-2"></label>
+      <label class="text-sm flex items-center gap-2 mt-5">
+        <input id="fLong" type="checkbox" class="w-4 h-4"> เฉพาะ "เหมาะถือยาว"</label>
+    </div>
+  </div>
+
+  <div class="card p-4 fade-in">
+    <div class="flex justify-between mb-2">
+      <h2 class="font-bold">ผลการคัดกรอง — <span id="cnt">0</span> ตัว</h2>
+      <span class="disclaimer">คลิกแถวเพื่อดูรายตัว</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table><thead><tr>
+        <th>หุ้น</th><th>เซกเตอร์</th><th>ราคา</th><th>คะแนน</th><th>เทคนิค</th>
+        <th>พื้นฐาน</th><th>P/E</th><th>ปันผล</th><th>ถือยาว</th><th>สัญญาณ</th>
+      </tr></thead><tbody id="tb"></tbody></table>
+    </div>
+  </div>
+  <p class="disclaimer text-center mt-6">⚠️ ข้อมูลจำลองเพื่อสาธิต UI · ไม่ใช่คำแนะนำการลงทุน</p>
+</div>
+
+<script src="assets/app.js"></script>
+<script>
+const fSector=document.getElementById('fSector');
+fSector.innerHTML='<option value="">ทุกเซกเตอร์</option>'+SECTORS.map(s=>`<option>${s}</option>`).join('');
+const els=['fSector','fSignal','fScore','fDiv','fLong'].map(i=>document.getElementById(i));
+document.getElementById('fScore').oninput=e=>document.getElementById('vScore').textContent=e.target.value;
+document.getElementById('fDiv').oninput=e=>document.getElementById('vDiv').textContent=e.target.value;
+
+function apply(){
+  const sec=fSector.value, sig=document.getElementById('fSignal').value;
+  const sc=+document.getElementById('fScore').value, dv=+document.getElementById('fDiv').value;
+  const lt=document.getElementById('fLong').checked;
+  const rows=STOCKS.filter(s=>(!sec||s.sector===sec)&&(!sig||s.signal===sig)&&s.comp>=sc&&s.div>=dv&&(!lt||s.longTerm))
+    .sort((a,b)=>b.comp-a.comp);
+  document.getElementById('cnt').textContent=rows.length;
+  document.getElementById('tb').innerHTML=rows.map(s=>{
+    const m=SIGNAL_META[s.signal];
+    return `<tr onclick="location.href='detail.html?sym=${s.sym}'">
+      <td><b>${s.sym}</b> <span class="disclaimer">${s.name}</span></td>
+      <td class="muted">${s.sector}</td><td>${s.price.toFixed(2)}</td>
+      <td><div class="flex items-center gap-2"><b>${s.comp}</b>
+        <div class="scorebar w-14"><i style="width:${s.comp}%;background:${scoreColor(s.comp)}"></i></div></div></td>
+      <td style="color:${scoreColor(s.tech)}">${s.tech}</td>
+      <td style="color:${scoreColor(s.fund)}">${s.fund}</td>
+      <td>${s.pe||'—'}</td><td>${s.div}%</td><td>${s.longTerm?'✅':'—'}</td>
+      <td><span class="chip ${m.cls}">${m.label}</span></td></tr>`;
+  }).join('')||'<tr><td colspan="10" class="text-center muted py-6">ไม่พบหุ้นตามเงื่อนไข</td></tr>';
+}
+els.forEach(e=>e.addEventListener('input',apply));
+apply();
+</script>
+</body>
+</html>

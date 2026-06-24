@@ -1,0 +1,17 @@
+{
+  "name": "thai-stock-analyzer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ระบบวิเคราะห์หุ้นไทย (SET+mai) — EOD pipeline (Node) + static web. ใช้ส่วนตัว.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "fetch:one": "node pipeline/run.js --only PTT",
+    "fetch:demo": "node pipeline/run.js --limit 10",
+    "fetch:all": "node pipeline/run.js --all",
+    "master": "node pipeline/fetch-master.js"
+  },
+  "license": "UNLICENSED"
+}

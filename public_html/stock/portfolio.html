@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>พอร์ต — Thai Stock Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-5">
+  <header class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="w-10 h-10 rounded-xl grid place-items-center" style="background:linear-gradient(135deg,#10d18e,#3b82f6)"><span class="text-xl">📊</span></a>
+      <div><div class="font-bold text-lg">Thai Stock <span style="color:var(--accent)">Analyzer</span></div>
+      <div class="disclaimer">วิเคราะห์หุ้นไทย · EOD · ใช้ส่วนตัว</div></div>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a class="navlink" href="index.html">แดชบอร์ด</a>
+      <a class="navlink" href="screener.html">คัดกรองหุ้น</a>
+      <a class="navlink" href="detail.html?sym=PTT">รายตัว</a>
+      <a class="navlink active" href="portfolio.html">พอร์ต</a>
+    </nav>
+  </header>
+
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 fade-in">
+    <div class="card p-4"><div class="muted text-xs mb-1">มูลค่าพอร์ตปัจจุบัน</div><div id="mv" class="text-2xl font-bold"></div></div>
+    <div class="card p-4"><div class="muted text-xs mb-1">ต้นทุนรวม</div><div id="cost" class="text-2xl font-bold"></div></div>
+    <div class="card p-4"><div class="muted text-xs mb-1">กำไร/ขาดทุน</div><div id="pl" class="text-2xl font-bold"></div></div>
+    <div class="card p-4"><div class="muted text-xs mb-1">% ผลตอบแทน</div><div id="plpct" class="text-2xl font-bold"></div></div>
+  </section>
+
+  <div class="grid lg:grid-cols-3 gap-4 mb-4">
+    <div class="card p-4 fade-in"><h2 class="font-bold mb-2">สัดส่วนพอร์ต</h2><div id="donut" style="height:260px"></div></div>
+    <div class="card p-4 lg:col-span-2 fade-in">
+      <h2 class="font-bold mb-3">รายการถือครอง (จำลอง)</h2>
+      <div class="overflow-x-auto"><table><thead><tr>
+        <th>หุ้น</th><th>จำนวน</th><th>ทุน/หุ้น</th><th>ราคาล่าสุด</th><th>มูลค่า</th><th>กำไร/ขาดทุน</th><th>สัญญาณ</th>
+      </tr></thead><tbody id="tb"></tbody></table></div>
+    </div>
+  </div>
+  <p class="disclaimer text-center mt-6">⚠️ พอร์ตจำลองเพื่อสาธิต UI · ไม่ใช่คำแนะนำการลงทุน</p>
+</div>
+
+<script src="assets/app.js"></script>
+<script>
+// พอร์ตจำลอง
+const HOLD=[{sym:'PTT',qty:5000,cost:32.0},{sym:'AOT',qty:2000,cost:55.0},
+  {sym:'KBANK',qty:800,cost:140.0},{sym:'ADVANC',qty:300,cost:200.0},{sym:'GULF',qty:3000,cost:38.0}];
+let mv=0,cost=0;
+const rows=HOLD.map(h=>{
+  const s=getStock(h.sym); const val=h.qty*s.price; const c=h.qty*h.cost;
+  mv+=val; cost+=c; const pl=val-c; const m=SIGNAL_META[s.signal];
+  return {s,h,val,c,pl,m};
+});
+const pl=mv-cost, pct=pl/cost*100;
+document.getElementById('mv').textContent=mv.toLocaleString('th-TH',{maximumFractionDigits:0})+' ฿';
+document.getElementById('cost').textContent=cost.toLocaleString('th-TH',{maximumFractionDigits:0})+' ฿';
+const plEl=document.getElementById('pl'); plEl.textContent=(pl>=0?'+':'')+pl.toLocaleString('th-TH',{maximumFractionDigits:0})+' ฿';
+plEl.className='text-2xl font-bold '+(pl>=0?'up':'down');
+const pctEl=document.getElementById('plpct'); pctEl.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%';
+pctEl.className='text-2xl font-bold '+(pct>=0?'up':'down');
+
+document.getElementById('tb').innerHTML=rows.map(({s,h,val,pl,m})=>
+  `<tr onclick="location.href='detail.html?sym=${s.sym}'">
+    <td><b>${s.sym}</b> <span class="disclaimer">${s.name}</span></td>
+    <td>${h.qty.toLocaleString()}</td><td>${h.cost.toFixed(2)}</td><td>${s.price.toFixed(2)}</td>
+    <td>${val.toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
+    <td class="${pl>=0?'up':'down'}">${(pl>=0?'+':'')+pl.toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
+    <td><span class="chip ${m.cls}">${m.label}</span></td></tr>`).join('');
+
+const donut=echarts.init(document.getElementById('donut'));
+donut.setOption({
+  tooltip:{trigger:'item',formatter:'{b}: {d}%'},
+  series:[{type:'pie',radius:['45%','72%'],itemStyle:{borderColor:'#0b0f17',borderWidth:2},
+    label:{color:'#cbd5e1'},
+    data:rows.map(r=>({name:r.s.sym,value:Math.round(r.val)}))}],
+  color:['#10d18e','#3b82f6','#f59e0b','#a855f7','#ef4444','#06b6d4']
+});
+window.addEventListener('resize',()=>donut.resize());
+</script>
+</body>
+</html>

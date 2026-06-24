@@ -1,0 +1,19 @@
+# --- secrets (ห้าม commit เด็ดขาด) ---
+.env
+*.local
+.api_token
+**/secrets*.json
+
+# --- node ---
+node_modules/
+npm-debug.log*
+
+# --- ไม่เกี่ยวกับโปรเจกต์ (repo skill ที่ดาวน์โหลดมาวางไว้ใน public_html) ---
+public_html/claude-skills-main/
+
+# หมายเหตุ: public_html/stock/data/ "ไม่" ถูก ignore เพราะ repo นี้ (share-data)
+# ตั้งใจใช้เก็บ/แชร์ผลลัพธ์ EOD ให้ frontend ดึงผ่าน raw GitHub URL
+
+# --- host/editor junk ---
+.DS_Store
+*.swp
