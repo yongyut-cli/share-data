@@ -14,9 +14,10 @@ const HEADERS = {
   Accept: 'application/json,text/plain,*/*',
 };
 
-/** หุ้นไทยใน Yahoo ใช้ ticker แบบ "XXXX.BK" */
+/** หุ้นไทยใน Yahoo ใช้ ticker แบบ "XXXX.BK" (ดัชนีขึ้นต้น ^ ไม่ต้องเติม .BK) */
 export function toYahooSymbol(symbol) {
-  return symbol.includes('.') ? symbol : `${symbol}.BK`;
+  if (symbol.startsWith('^') || symbol.includes('.')) return symbol;
+  return `${symbol}.BK`;
 }
 
 /**

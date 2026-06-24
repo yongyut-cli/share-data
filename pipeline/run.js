@@ -13,6 +13,7 @@
 import { resolve } from 'node:path';
 import { loadMaster, REPO_ROOT } from './fetch-master.js';
 import { fetchEOD } from './lib/yahoo.js';
+import { analyze } from './lib/scoring.js';
 import { mapBatched, writeJSON, todayICT, nowISO } from './lib/util.js';
 
 const OUT_DIR = process.env.OUT_DIR
@@ -86,12 +87,20 @@ async function main() {
     if (r.status === 'fulfilled') {
       const { data } = r.value;
       const last = data.bars[data.bars.length - 1];
+      const score = analyze(data.bars); // indicators + คะแนนเทคนิค + สัญญาณ (null ถ้าข้อมูลสั้น)
+      const turnover = Math.round((last.close * last.volume) / 1e6); // มูลค่าซื้อขายล่าสุด (ล้านบาท)
+
       await writeJSON(resolve(OUT_DIR, 'prices', `${meta.symbol}.json`), {
         symbol: meta.symbol,
         name_th: meta.name_th,
+        name_en: meta.name_en,
         sector: meta.sector,
         market: meta.market,
         currency: data.currency,
+        date: last.date,
+        price: last.close,
+        chg: changePct(data.bars),
+        score,
         bars: data.bars,
       });
       summary.push({
@@ -102,12 +111,19 @@ async function main() {
         sector: meta.sector,
         price: last.close,
         chg: changePct(data.bars),
+        turnover,
         date: last.date,
         bars: data.bars.length,
-        incomplete: data.bars.length < 30, // flag ข้อมูลสั้น/ไม่สมบูรณ์
+        tech: score?.tech ?? null,
+        mom: score?.mom ?? null,
+        composite: score?.composite ?? null,
+        signal: score?.signal ?? null,
+        rr: score?.rr ?? null,
+        incomplete: !score, // ข้อมูลสั้นเกินกว่าจะคำนวณสัญญาณ
       });
       ok++;
-      console.log(`  ✓ ${meta.symbol.padEnd(7)} ${String(last.close).padStart(8)}  (${data.bars.length} แท่ง)`);
+      const sig = score?.signal ?? '—';
+      console.log(`  ✓ ${meta.symbol.padEnd(7)} ${String(last.close).padStart(8)}  คะแนน ${String(score?.tech ?? '—').padStart(3)}  ${sig}`);
     } else {
       failures.push({ symbol: meta.symbol, error: String(r.reason?.message ?? r.reason) });
       console.warn(`  ✗ ${meta.symbol.padEnd(7)} — ${r.reason?.message ?? r.reason}`);
@@ -116,7 +132,37 @@ async function main() {
 
   summary.sort((a, b) => a.symbol.localeCompare(b.symbol));
 
-  await writeJSON(resolve(OUT_DIR, 'summary.json'), { date: todayICT(), count: summary.length, stocks: summary });
+  // --- SET index + สถิติภาพรวมตลาด (จาก universe ที่ติดตาม) ---
+  let setIndex = null;
+  try {
+    const idx = await fetchEOD('^SET.BK', { range: '5d' });
+    const lb = idx.bars[idx.bars.length - 1];
+    setIndex = { value: lb.close, chg: changePct(idx.bars), date: lb.date };
+    console.log(`\nSET index: ${setIndex.value} (${setIndex.chg >= 0 ? '+' : ''}${setIndex.chg}%)`);
+  } catch (e) {
+    console.warn(`\n⚠ ดึง SET index ไม่ได้: ${e.message}`);
+  }
+
+  const advancers = summary.filter((s) => s.chg > 0).length;
+  const decliners = summary.filter((s) => s.chg < 0).length;
+  const buyCount = summary.filter((s) => s.signal === 'BUY').length;
+  const turnoverSum = summary.reduce((a, s) => a + (s.turnover || 0), 0);
+
+  const market = {
+    set_index: setIndex,
+    universe: summary.length,
+    advancers,
+    decliners,
+    buy_signals: buyCount,
+    turnover_total_mbaht: turnoverSum,
+  };
+
+  await writeJSON(resolve(OUT_DIR, 'summary.json'), {
+    date: todayICT(),
+    count: summary.length,
+    market,
+    stocks: summary,
+  });
   await writeJSON(resolve(OUT_DIR, 'meta.json'), {
     generated_at: nowISO(),
     date_ict: todayICT(),
@@ -124,8 +170,8 @@ async function main() {
     ok,
     failed: failures.length,
     failures,
-    phase: 0,
-    note: 'EOD prices only (ยังไม่มี indicators/scoring — เพิ่มใน Phase 1)',
+    phase: 1,
+    note: 'EOD + technical indicators + technical scoring/signals (พื้นฐาน/ข่าว มาใน Phase 2)',
   });
 
   console.log(`\n=== สรุป: สำเร็จ ${ok}/${targets.length} | ล้มเหลว ${failures.length} ===`);

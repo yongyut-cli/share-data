@@ -1,1 +1,1 @@
-{"generated_at":"2026-06-24T03:01:15.080Z","date_ict":"2026-06-24","requested":59,"ok":58,"failed":1,"failures":[{"symbol":"INTUCH","error":"HTTP 404 (INTUCH.BK)"}],"phase":0,"note":"EOD prices only (ยังไม่มี indicators/scoring — เพิ่มใน Phase 1)"}
+{"generated_at":"2026-06-24T03:26:22.961Z","date_ict":"2026-06-24","requested":58,"ok":58,"failed":0,"failures":[],"phase":1,"note":"EOD + technical indicators + technical scoring/signals (พื้นฐาน/ข่าว มาใน Phase 2)"}

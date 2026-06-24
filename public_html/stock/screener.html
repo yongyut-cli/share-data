@@ -25,19 +25,17 @@
   </header>
 
   <div class="card p-4 mb-4 fade-in">
-    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
       <label class="text-sm">เซกเตอร์
         <select id="fSector" class="w-full mt-1 bg-white/5 rounded-lg p-2 border border-white/10"></select></label>
       <label class="text-sm">สัญญาณ
         <select id="fSignal" class="w-full mt-1 bg-white/5 rounded-lg p-2 border border-white/10">
           <option value="">ทั้งหมด</option><option>BUY</option><option>ACCUMULATE</option>
-          <option>HOLD</option><option>REDUCE</option><option>AVOID</option></select></label>
-      <label class="text-sm">คะแนนรวมขั้นต่ำ: <span id="vScore">0</span>
+          <option>HOLD</option><option>REDUCE</option><option>SELL</option><option>AVOID</option></select></label>
+      <label class="text-sm">คะแนนเทคนิคขั้นต่ำ: <span id="vScore">0</span>
         <input id="fScore" type="range" min="0" max="100" value="0" class="w-full mt-2"></label>
-      <label class="text-sm">ปันผลขั้นต่ำ (%): <span id="vDiv">0</span>
-        <input id="fDiv" type="range" min="0" max="8" step="0.5" value="0" class="w-full mt-2"></label>
-      <label class="text-sm flex items-center gap-2 mt-5">
-        <input id="fLong" type="checkbox" class="w-4 h-4"> เฉพาะ "เหมาะถือยาว"</label>
+      <label class="text-sm">โมเมนตัมขั้นต่ำ: <span id="vMom">0</span>
+        <input id="fMom" type="range" min="0" max="100" value="0" class="w-full mt-2"></label>
     </div>
   </div>
 
@@ -48,44 +46,48 @@
     </div>
     <div class="overflow-x-auto">
       <table><thead><tr>
-        <th>หุ้น</th><th>เซกเตอร์</th><th>ราคา</th><th>คะแนน</th><th>เทคนิค</th>
-        <th>พื้นฐาน</th><th>P/E</th><th>ปันผล</th><th>ถือยาว</th><th>สัญญาณ</th>
+        <th>หุ้น</th><th>เซกเตอร์</th><th>ราคา</th><th>เปลี่ยน</th><th>คะแนนเทคนิค</th>
+        <th>โมเมนตัม</th><th>R:R</th><th>สัญญาณ</th>
       </tr></thead><tbody id="tb"></tbody></table>
     </div>
   </div>
-  <p class="disclaimer text-center mt-6">⚠️ ข้อมูลจำลองเพื่อสาธิต UI · ไม่ใช่คำแนะนำการลงทุน</p>
+  <p class="disclaimer text-center mt-6">
+    ข้อมูลราคา EOD จริง · วิเคราะห์ทางเทคนิค (Phase 1) · ⚠️ ไม่ใช่คำแนะนำการลงทุน
+  </p>
 </div>
 
 <script src="assets/app.js"></script>
 <script>
-const fSector=document.getElementById('fSector');
-fSector.innerHTML='<option value="">ทุกเซกเตอร์</option>'+SECTORS.map(s=>`<option>${s}</option>`).join('');
-const els=['fSector','fSignal','fScore','fDiv','fLong'].map(i=>document.getElementById(i));
-document.getElementById('fScore').oninput=e=>document.getElementById('vScore').textContent=e.target.value;
-document.getElementById('fDiv').oninput=e=>document.getElementById('vDiv').textContent=e.target.value;
+READY.then(() => {
+  const fSector=document.getElementById('fSector');
+  fSector.innerHTML='<option value="">ทุกเซกเตอร์</option>'+SECTORS.map(s=>`<option>${s}</option>`).join('');
+  const els=['fSector','fSignal','fScore','fMom'].map(i=>document.getElementById(i));
+  document.getElementById('fScore').oninput=e=>document.getElementById('vScore').textContent=e.target.value;
+  document.getElementById('fMom').oninput=e=>document.getElementById('vMom').textContent=e.target.value;
 
-function apply(){
-  const sec=fSector.value, sig=document.getElementById('fSignal').value;
-  const sc=+document.getElementById('fScore').value, dv=+document.getElementById('fDiv').value;
-  const lt=document.getElementById('fLong').checked;
-  const rows=STOCKS.filter(s=>(!sec||s.sector===sec)&&(!sig||s.signal===sig)&&s.comp>=sc&&s.div>=dv&&(!lt||s.longTerm))
-    .sort((a,b)=>b.comp-a.comp);
-  document.getElementById('cnt').textContent=rows.length;
-  document.getElementById('tb').innerHTML=rows.map(s=>{
-    const m=SIGNAL_META[s.signal];
-    return `<tr onclick="location.href='detail.html?sym=${s.sym}'">
-      <td><b>${s.sym}</b> <span class="disclaimer">${s.name}</span></td>
-      <td class="muted">${s.sector}</td><td>${s.price.toFixed(2)}</td>
-      <td><div class="flex items-center gap-2"><b>${s.comp}</b>
-        <div class="scorebar w-14"><i style="width:${s.comp}%;background:${scoreColor(s.comp)}"></i></div></div></td>
-      <td style="color:${scoreColor(s.tech)}">${s.tech}</td>
-      <td style="color:${scoreColor(s.fund)}">${s.fund}</td>
-      <td>${s.pe||'—'}</td><td>${s.div}%</td><td>${s.longTerm?'✅':'—'}</td>
-      <td><span class="chip ${m.cls}">${m.label}</span></td></tr>`;
-  }).join('')||'<tr><td colspan="10" class="text-center muted py-6">ไม่พบหุ้นตามเงื่อนไข</td></tr>';
-}
-els.forEach(e=>e.addEventListener('input',apply));
-apply();
+  function apply(){
+    const sec=fSector.value, sig=document.getElementById('fSignal').value;
+    const sc=+document.getElementById('fScore').value, mm=+document.getElementById('fMom').value;
+    const rows=STOCKS.filter(s=>(!sec||s.sector===sec)&&(!sig||s.signal===sig)&&(s.comp??0)>=sc&&(s.mom??0)>=mm)
+      .sort((a,b)=>(b.comp??0)-(a.comp??0));
+    document.getElementById('cnt').textContent=rows.length;
+    document.getElementById('tb').innerHTML=rows.map(s=>{
+      const m=SIGNAL_META[s.signal];
+      const chg=(s.chg>=0?'+':'')+fmtNum(s.chg)+'%';
+      return `<tr onclick="location.href='detail.html?sym=${s.sym}'">
+        <td><b>${s.sym}</b> <span class="disclaimer">${s.name}</span></td>
+        <td class="muted">${s.sector}</td><td>${fmtNum(s.price)}</td>
+        <td class="${s.chg>=0?'up':'down'}">${chg}</td>
+        <td><div class="flex items-center gap-2"><b>${s.comp ?? '—'}</b>
+          <div class="scorebar w-14"><i style="width:${s.comp??0}%;background:${scoreColor(s.comp)}"></i></div></div></td>
+        <td style="color:${scoreColor(s.mom)}">${s.mom ?? '—'}</td>
+        <td>${s.rr?'1:'+s.rr:'—'}</td>
+        <td><span class="chip ${m.cls}">${m.label}</span></td></tr>`;
+    }).join('')||'<tr><td colspan="8" class="text-center muted py-6">ไม่พบหุ้นตามเงื่อนไข</td></tr>';
+  }
+  els.forEach(e=>e.addEventListener('input',apply));
+  apply();
+}).catch(showDataError);
 </script>
 </body>
 </html>

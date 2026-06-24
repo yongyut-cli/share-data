@@ -72,102 +72,106 @@
     <div class="card p-4 fade-in">
       <h2 class="font-bold mb-2">เรดาร์คะแนน 4 มิติ</h2>
       <div id="radar" style="height:260px"></div>
+      <div class="disclaimer text-center">พื้นฐาน / Sentiment จะเปิดใช้ใน Phase 2</div>
     </div>
-    <!-- FUNDAMENTALS -->
+    <!-- INDICATORS -->
     <div class="card p-4 fade-in">
-      <h2 class="font-bold mb-3">พื้นฐาน (งบการเงินย่อ)</h2>
+      <h2 class="font-bold mb-3">อินดิเคเตอร์เทคนิค</h2>
       <div id="fund" class="grid grid-cols-2 gap-3 text-sm"></div>
     </div>
-    <!-- NEWS -->
+    <!-- NEWS (Phase 2) -->
     <div class="card p-4 fade-in">
       <h2 class="font-bold mb-3">📰 ข่าว & Sentiment (AI)</h2>
-      <div id="news" class="space-y-3"></div>
+      <div id="news" class="muted text-sm leading-relaxed">
+        การดึงข่าว + สรุป/ให้คะแนน sentiment ด้วย AI (Claude) จะมาใน <b>Phase 2</b>
+        พร้อมการวิเคราะห์พื้นฐาน (งบการเงินย่อ) และป้าย "เหมาะถือยาว"
+      </div>
     </div>
   </div>
 
   <p class="disclaimer text-center mt-6 mb-2">
-    ⚠️ ข้อมูลทั้งหมดเป็น <b>ข้อมูลจำลอง (mock)</b> เพื่อสาธิต UI เท่านั้น · ไม่ใช่คำแนะนำการลงทุน
+    ข้อมูลราคา EOD จริงจาก Yahoo Finance · วิเคราะห์ทางเทคนิค (Phase 1) ·
+    ⚠️ <b>ข้อมูลเพื่อการศึกษาส่วนตัว ไม่ใช่คำแนะนำการลงทุน</b> · การลงทุนมีความเสี่ยง
   </p>
 </div>
 
 <script src="assets/app.js"></script>
 <script>
 const sym = qs('sym') || 'PTT';
-let chart, candleSeries;
+let chart;
 
-// dropdown
-const sel = document.getElementById('symSel');
-sel.innerHTML = STOCKS.map(s=>`<option value="${s.sym}" ${s.sym===sym?'selected':''}>${s.sym}</option>`).join('');
-sel.onchange = ()=> location.href = 'detail.html?sym='+sel.value;
+READY.then(async () => {
+  // dropdown
+  const sel = document.getElementById('symSel');
+  sel.innerHTML = STOCKS.map(s=>`<option value="${s.sym}" ${s.sym===sym?'selected':''}>${s.sym}</option>`).join('');
+  sel.onchange = ()=> location.href = 'detail.html?sym='+sel.value;
 
-function render(s){
-  document.getElementById('hName').textContent = s.name + ' · ' + s.sector;
-  document.getElementById('hPrice').textContent = s.price.toFixed(2) + ' ฿';
+  const d = await loadStock(sym);     // { symbol, price, chg, score:{...}, bars:[...] }
+  render(d);
+}).catch(showDataError);
+
+function render(d){
+  const sc = d.score || {};
+  const sig = sc.signal || 'NA';
+  const m = SIGNAL_META[sig];
+
+  document.getElementById('hName').textContent = d.name_th + ' · ' + d.sector;
+  document.getElementById('hPrice').textContent = fmtNum(d.price) + ' ฿';
   const chg = document.getElementById('hChg');
-  chg.textContent = (s.chg>=0?'▲ +':'▼ ')+s.chg.toFixed(2)+'%';
-  chg.className = 'font-semibold ' + (s.chg>=0?'up':'down');
+  chg.textContent = (d.chg>=0?'▲ +':'▼ ')+fmtNum(d.chg)+'%';
+  chg.className = 'font-semibold ' + (d.chg>=0?'up':'down');
 
-  const m = SIGNAL_META[s.signal];
   document.getElementById('hSignal').innerHTML =
     `<span class="chip ${m.cls}" style="font-size:15px;padding:6px 16px">${m.label}</span>
-     <div class="muted text-sm mt-1">คะแนนรวม <b style="color:${scoreColor(s.comp)}">${s.comp}</b>/100</div>`;
+     <div class="muted text-sm mt-1">คะแนนเทคนิค <b style="color:${scoreColor(sc.tech)}">${sc.tech ?? '—'}</b>/100</div>`;
 
   // plan
-  const hasPlan = s.entry>0;
+  const hasPlan = sc.entry > 0;
   document.getElementById('plan').innerHTML = hasPlan ? `
-    <div class="flex justify-between"><span class="muted">โซนเข้าซื้อ</span><b>${s.entry.toFixed(2)} ฿</b></div>
-    <div class="flex justify-between"><span class="muted">จุดตัดขาดทุน (stop)</span><b class="down">${s.stop.toFixed(2)} ฿</b></div>
-    <div class="flex justify-between"><span class="muted">เป้าหมาย (target)</span><b class="up">${s.target.toFixed(2)} ฿</b></div>
-    <div class="flex justify-between"><span class="muted">Risk : Reward</span><b>1 : ${((s.target-s.entry)/(s.entry-s.stop)).toFixed(1)}</b></div>
-    <div class="flex justify-between"><span class="muted">เหมาะถือยาว</span><b>${s.longTerm?'✅ ใช่':'— ไม่'}</b></div>
+    <div class="flex justify-between"><span class="muted">โซนเข้าซื้อ</span><b>${fmtNum(sc.entry)} ฿</b></div>
+    <div class="flex justify-between"><span class="muted">จุดตัดขาดทุน (stop)</span><b class="down">${fmtNum(sc.stop)} ฿</b></div>
+    <div class="flex justify-between"><span class="muted">เป้าหมาย (target)</span><b class="up">${fmtNum(sc.target)} ฿</b></div>
+    <div class="flex justify-between"><span class="muted">Risk : Reward</span><b>1 : ${sc.rr ?? '—'}</b></div>
   ` : `
     <div class="text-center py-4 muted">สัญญาณปัจจุบัน: <b>${m.label}</b><br>
-    <span class="text-sm">ยังไม่แนะนำเปิดสถานะใหม่ — รอจังหวะ/ถือตามแผนเดิม</span></div>
-    <div class="flex justify-between"><span class="muted">เหมาะถือยาว</span><b>${s.longTerm?'✅ ใช่':'— ไม่'}</b></div>`;
+    <span class="text-sm">ยังไม่แนะนำเปิดสถานะใหม่ — รอจังหวะ/ถือตามแผนเดิม</span></div>`;
 
-  // reasons
-  document.getElementById('reasons').innerHTML = reasonsFor(s).map(r=>
-    `<div class="flex gap-2"><span>${r.ic}</span><span class="muted">${r.t}</span></div>`).join('');
+  // reasons (จาก scoring engine — โปร่งใส)
+  const reasons = sc.reasons || [];
+  document.getElementById('reasons').innerHTML = reasons.length ? reasons.map(r=>
+    `<div class="flex gap-2"><span>${r.ic}</span><span class="muted">${r.t}</span></div>`).join('')
+    : '<div class="muted text-sm">ข้อมูลไม่พอสำหรับคำนวณสัญญาณ (ต้องมีราคาย้อนหลัง ≥ 60 วัน)</div>';
 
-  // fundamentals
+  // อินดิเคเตอร์เทคนิค (ของจริง)
+  const ind = sc.indicators || {};
   const f = [
-    ['P/E', s.pe||'ขาดทุน'], ['P/BV', s.pbv], ['ROE', s.roe+'%'],
-    ['ปันผล', s.div+'%'], ['มาร์เก็ตแคป', fmtCap(s.mktcap)], ['Momentum', s.mom],
+    ['RSI(14)', ind.rsi], ['MACD hist', ind.macdHist],
+    ['ADX(14)', ind.adx], ['ATR(14)', ind.atr],
+    ['EMA50', ind.ema50], ['EMA200', ind.ema200],
+    ['+DI / -DI', ind.plusDI!=null?`${fmtNum(ind.plusDI,1)}/${fmtNum(ind.minusDI,1)}`:null],
+    ['ราคา 20 วัน', ind.roc20!=null?`${ind.roc20>=0?'+':''}${fmtNum(ind.roc20,1)}%`:null],
   ];
   document.getElementById('fund').innerHTML = f.map(([k,v])=>
-    `<div class="bg-white/5 rounded-lg p-3"><div class="disclaimer">${k}</div><div class="font-bold text-base">${v}</div></div>`).join('');
+    `<div class="bg-white/5 rounded-lg p-3"><div class="disclaimer">${k}</div><div class="font-bold text-base">${typeof v==='string'?v:fmtNum(v)}</div></div>`).join('');
 
-  // news
-  document.getElementById('news').innerHTML = newsFor(s).map(n=>{
-    const c = n.sent>=0.1?'up':(n.sent<=-0.1?'down':'muted');
-    const tag = n.sent>=0.1?'บวก':(n.sent<=-0.1?'ลบ':'กลาง');
-    return `<div class="border-b border-white/5 pb-2">
-      <div class="flex justify-between items-start gap-2">
-        <span class="text-sm leading-snug">${n.t}</span>
-        <span class="chip ${c==='up'?'sig-buy':c==='down'?'sig-sell':'sig-hold'}" style="flex-shrink:0">${tag}</span>
-      </div>
-      <div class="disclaimer mt-1">${n.date} · ${n.src}</div></div>`;
-  }).join('');
-
-  // radar
+  // radar — เทคนิค & โมเมนตัม จริง; พื้นฐาน/Sentiment รอ Phase 2
   const radar = echarts.init(document.getElementById('radar'));
   radar.setOption({
     radar:{ indicator:[
-        {name:'เทคนิค',max:100},{name:'พื้นฐาน',max:100},
-        {name:'โมเมนตัม',max:100},{name:'Sentiment',max:100}],
+        {name:'เทคนิค',max:100},{name:'พื้นฐาน (P2)',max:100},
+        {name:'โมเมนตัม',max:100},{name:'Sentiment (P2)',max:100}],
       splitLine:{lineStyle:{color:'#1e2a3e'}}, splitArea:{areaStyle:{color:['transparent']}},
       axisLine:{lineStyle:{color:'#1e2a3e'}}, axisName:{color:'#8a99b3'} },
-    series:[{type:'radar',data:[{value:[s.tech,s.fund,s.mom,(s.sent+1)*50],
+    series:[{type:'radar',data:[{value:[sc.tech??0, 0, sc.mom??0, 0],
       areaStyle:{color:'rgba(16,209,142,.25)'},lineStyle:{color:'#10d18e'},
       itemStyle:{color:'#10d18e'}}]}]
   });
   window.addEventListener('resize',()=>radar.resize());
 
-  // candlestick
-  buildChart(s);
+  buildChart(d);
 }
 
-function buildChart(s){
+function buildChart(d){
   const el = document.getElementById('chart');
   el.innerHTML='';
   chart = LightweightCharts.createChart(el,{
@@ -177,8 +181,9 @@ function buildChart(s){
     crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
     height:380,
   });
-  const candles = genCandles(s.sym, s.price);
-  candleSeries = chart.addCandlestickSeries({
+  // bars จริง → รูปแบบ lightweight-charts
+  const candles = d.bars.map(b=>({time:b.date,open:b.open,high:b.high,low:b.low,close:b.close,value:b.volume}));
+  const candleSeries = chart.addCandlestickSeries({
     upColor:'#10d18e',downColor:'#f87171',borderVisible:false,
     wickUpColor:'#10d18e',wickDownColor:'#f87171',
   });
@@ -193,16 +198,15 @@ function buildChart(s){
     line.setData(ema(candles,p));
   });
 
-  // mark stop & target
-  if(s.entry>0){
-    candleSeries.createPriceLine({price:s.target,color:'#10d18e',lineStyle:2,title:'Target'});
-    candleSeries.createPriceLine({price:s.stop,color:'#f87171',lineStyle:2,title:'Stop'});
+  // เส้น stop & target (เฉพาะเมื่อมีแผน)
+  const sc = d.score || {};
+  if(sc.entry>0){
+    candleSeries.createPriceLine({price:sc.target,color:'#10d18e',lineStyle:2,title:'Target'});
+    candleSeries.createPriceLine({price:sc.stop,color:'#f87171',lineStyle:2,title:'Stop'});
   }
   chart.timeScale().fitContent();
   new ResizeObserver(()=>chart.applyOptions({width:el.clientWidth})).observe(el);
 }
-
-render(getStock(sym));
 </script>
 </body>
 </html>

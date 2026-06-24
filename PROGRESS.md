@@ -7,10 +7,10 @@
 
 | ส่วน | สถานะ | หมายเหตุ |
 |---|---|---|
-| Frontend UI (4 หน้า) | 🟡 เสร็จหน้าตา แต่ยังใช้ **ข้อมูลจำลอง (mock)** | dashboard, รายตัว, screener, พอร์ต |
+| Frontend UI (4 หน้า) | 🟢 **ต่อข้อมูลจริงแล้ว** (เทคนิค) | dashboard, รายตัว, screener, พอร์ต |
 | Data pipeline (EOD) | 🟢 **ทำงานจริงแล้ว** (Phase 0) | ดึงราคาจริงจาก Yahoo Finance |
-| เชื่อม frontend ↔ ข้อมูลจริง | 🔴 ยังไม่ได้ทำ | งานหลักของ Phase 1 |
-| Indicators + Scoring | 🔴 ยังไม่ได้ทำ | Phase 1 |
+| เชื่อม frontend ↔ ข้อมูลจริง | 🟢 **เสร็จแล้ว** (Phase 1) | app.js fetch summary/prices JSON |
+| Indicators + Scoring | 🟢 **เสร็จแล้ว** (Phase 1) | SMA/EMA/RSI/MACD/BB/ADX/ATR/Stoch/OBV + คะแนน+สัญญาณ |
 | พื้นฐาน + ข่าว/AI sentiment | 🔴 ยังไม่ได้ทำ | Phase 2 |
 | พอร์ต + แจ้งเตือน + login | 🔴 ยังไม่ได้ทำ | Phase 3 / FR-AUTH |
 
@@ -38,30 +38,32 @@
 
 ---
 
-## 🟡 Frontend — สถานะรายหน้า
+## ✅ Phase 1 — MVP เทคนิค (เสร็จ 2026-06-24)
 
-ทุกหน้าทำ **หน้าตา (UI) เสร็จสวยงาม** แล้ว แต่ดึงจาก mock ใน `public_html/stock/assets/app.js` (หุ้น 15 ตัวสมมติ) — **ยังไม่ได้ต่อกับข้อมูลจริง**
+- [x] `pipeline/lib/indicators.js` — SMA, EMA(20/50/200), RSI(14), MACD, Bollinger, ATR, ADX(+DI/-DI), Stochastic, OBV (pure JS)
+- [x] `pipeline/lib/scoring.js` — คะแนนเทคนิค 0–100 + จำแนกสัญญาณ BUY/ACCUMULATE/HOLD/REDUCE/SELL/AVOID + entry/stop/target (−2×ATR, R:R 1:2) + **เหตุผลประกอบทุกข้อ** (โปร่งใส)
+- [x] ผนวกเข้า `run.js` — เขียน score ลง `prices/<SYM>.json` + `summary.json` + ดึง SET index (`^SET.BK`) + สถิติตลาด
+- [x] **เปลี่ยน frontend จาก mock → fetch JSON จริง** ทั้ง 4 หน้า
+- [x] ทดสอบ: 58/58 มีคะแนน+สัญญาณ, หน้าเว็บ serve 200, ข้อมูลเข้าถึงได้
 
-| หน้า | ไฟล์ | มีอะไรแล้ว |
+## 🟢 Frontend — สถานะรายหน้า (ต่อข้อมูลจริงแล้ว)
+
+| หน้า | ไฟล์ | ใช้ข้อมูลจริง |
 |---|---|---|
-| Dashboard | `stock/index.html` | SET index, heatmap รายเซกเตอร์, การ์ด Top ซื้อ/ขาย/ถือยาว, ตารางคะแนน |
-| รายตัว | `stock/detail.html` | กราฟแท่งเทียน + EMA + volume, เรดาร์ 4 มิติ, กล่องสัญญาณ entry/stop/target, เหตุผล, ข่าว |
-| Screener | `stock/screener.html` | กรอง sector/สัญญาณ/คะแนน/ปันผล/ถือยาว |
-| พอร์ต | `stock/portfolio.html` | ตารางถือหุ้น, กำไร/ขาดทุน, donut สัดส่วน |
+| Dashboard | `stock/index.html` | SET index จริง, heatmap (สี=คะแนนเทคนิค, ขนาด=มูลค่าซื้อขาย), Top ซื้อ/ขาย/สะสม, ตารางคะแนน |
+| รายตัว | `stock/detail.html` | กราฟแท่งเทียนจาก OHLCV จริง + EMA, กล่องสัญญาณ+แผนเทรด, เหตุผลจาก scoring engine, อินดิเคเตอร์จริง |
+| Screener | `stock/screener.html` | กรอง sector/สัญญาณ/คะแนน/โมเมนตัม บนข้อมูลจริง |
+| พอร์ต | `stock/portfolio.html` | กำไร/ขาดทุนจากราคา EOD จริง (รายการถือยังเป็น list จำลอง — เก็บถาวร Phase 3) |
 
-> ⚠️ ทุกหน้ายังขึ้นป้าย "ข้อมูลจำลอง (mock)" — ตัวเลขสัญญาณ/คะแนนทั้งหมดยังไม่ใช่ของจริง
+> หมายเหตุ: ส่วนที่เป็น Phase 2 (พื้นฐาน/ข่าว/sentiment/ถือยาว) แสดงป้าย "รอ Phase 2" อย่างชัดเจน ไม่มี mock หลอกแล้ว
 
 ---
 
 ## ⏭️ งานที่เหลือ (ตาม Roadmap)
 
-**Phase 1 — MVP เทคนิค (ถัดไป)**
-- [ ] คำนวณ indicators: SMA/EMA(20/50/200), RSI(14), MACD, Bollinger, ADX, ATR, OBV
-- [ ] scoring เทคนิค 0–100 + สัญญาณ BUY/HOLD/SELL + entry/stop/target + เหตุผล
-- [ ] **เปลี่ยน frontend ให้อ่าน JSON จริง แทน mock** ← ทำให้เว็บ "ของจริง"
-- [ ] screener ทำงานบนข้อมูลจริง
+**Phase 1 — MVP เทคนิค** ✅ เสร็จแล้ว (ดูด้านบน)
 
-**Phase 2 — พื้นฐาน + AI ข่าว**
+**Phase 2 — พื้นฐาน + AI ข่าว (ถัดไป)**
 - [ ] อัตราส่วนพื้นฐาน (P/E, P/BV, ROE, ปันผล...) + ป้าย "เหมาะถือยาว"
 - [ ] ดึงข่าว RSS → Claude API สรุป + sentiment
 
