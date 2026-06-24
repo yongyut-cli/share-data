@@ -12,7 +12,7 @@ Options -Indexes
   RewriteBase /stock/
 
   # endpoint ฝั่งเซิร์ฟเวอร์ — เสิร์ฟตรง (ตรวจ session ภายในเอง) ไม่ต้องผ่าน guard
-  RewriteRule ^(login\.php|logout\.php|auth\.php|guard\.php|api\.php)$ - [L]
+  RewriteRule ^(login\.php|logout\.php|auth\.php|guard\.php|api\.php|account\.php)$ - [L]
 
   # ทุกอย่างที่เหลือ → guard.php (guard อ่าน REQUEST_URI เดิมเพื่อรู้ว่าขอไฟล์ใด)
   RewriteRule ^ guard.php [L]

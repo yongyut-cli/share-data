@@ -17,6 +17,79 @@ function auth_users(): array
     return is_array($users) ? $users : [];
 }
 
+// ---- path ของไฟล์ผู้ใช้ (นอก public_html) ----
+function auth_users_path(): string
+{
+    return __DIR__ . '/../../private/users.php';
+}
+
+// ---- เขียนรายชื่อผู้ใช้กลับลงไฟล์ (atomic + สิทธิ์เข้มงวด) ----
+function auth_save_users(array $users): bool
+{
+    $file = auth_users_path();
+    $out  = "<?php\n"
+          . "/**\n"
+          . " * ผู้ใช้ที่ได้รับอนุญาต (FR-AUTH) — เก็บนอก public_html\n"
+          . " * แก้ไขผ่าน account.php (เว็บ) หรือ tools/set-password.php (CLI) — ห้าม commit (.gitignore)\n"
+          . " */\n"
+          . "return [\n";
+    foreach ($users as $u => $h) {
+        $out .= "    " . var_export((string) $u, true) . " => " . var_export((string) $h, true) . ",\n";
+    }
+    $out .= "];\n";
+
+    $dir = dirname($file);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0700, true);
+    }
+    // เขียนลงไฟล์ชั่วคราวแล้ว rename เพื่อกันไฟล์เสียกลางคัน
+    $tmp = $file . '.tmp' . getmypid();
+    if (file_put_contents($tmp, $out, LOCK_EX) === false) {
+        return false;
+    }
+    chmod($tmp, 0600);
+    return rename($tmp, $file);
+}
+
+// ---- ตั้ง/เปลี่ยนรหัสผ่านผู้ใช้ (สร้าง user ใหม่ถ้ายังไม่มี) ----
+function auth_set_password(string $user, string $pass): bool
+{
+    $users = auth_users();
+    $users[trim($user)] = password_hash($pass, PASSWORD_DEFAULT);
+    return auth_save_users($users);
+}
+
+// ---- เปลี่ยนรหัสผ่านโดยต้องยืนยันรหัสเดิม คืน [bool, ข้อความ] ----
+function auth_change_password(string $user, string $current, string $new): array
+{
+    $users = auth_users();
+    $user  = trim($user);
+    if (!isset($users[$user])) {
+        return [false, 'ไม่พบบัญชีผู้ใช้'];
+    }
+    if (!password_verify($current, $users[$user])) {
+        usleep(400000); // หน่วงกัน brute-force
+        return [false, 'รหัสผ่านปัจจุบันไม่ถูกต้อง'];
+    }
+    if (strlen($new) < 8) {
+        return [false, 'รหัสผ่านใหม่ต้องยาวอย่างน้อย 8 ตัวอักษร'];
+    }
+    if ($new === $current) {
+        return [false, 'รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสเดิม'];
+    }
+    if (!auth_set_password($user, $new)) {
+        return [false, 'บันทึกรหัสผ่านไม่สำเร็จ — ตรวจสิทธิ์ไฟล์ private/users.php'];
+    }
+    return [true, 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว'];
+}
+
+// ---- ชื่อผู้ใช้ที่ล็อกอินอยู่ (null ถ้ายังไม่ล็อกอิน) ----
+function auth_current_user(): ?string
+{
+    auth_start_session();
+    return isset($_SESSION['uid']) ? (string) $_SESSION['uid'] : null;
+}
+
 // ---- เริ่ม session แบบปลอดภัย ----
 function auth_start_session(): void
 {

@@ -74,6 +74,11 @@ $mimes = [
 ];
 header('Content-Type: ' . ($mimes[$ext] ?? 'application/octet-stream'));
 header('X-Content-Type-Options: nosniff');
-header('Cache-Control: private, no-cache'); // ข้อมูลส่วนตัว — ห้าม proxy แคช
+// แคชเฉพาะไฟล์ static (vendor/assets) — data .json เปลี่ยนรายวันจึงห้ามแคช
+if (strpos($rel, 'assets/') === 0) {
+    header('Cache-Control: private, max-age=86400'); // 1 วัน (ส่วนตัว ไม่ให้ proxy สาธารณะแคช)
+} else {
+    header('Cache-Control: private, no-cache'); // html + data ส่วนตัว — ดึงสดเสมอ
+}
 header('Content-Length: ' . filesize($target));
 readfile($target);

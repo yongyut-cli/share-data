@@ -1,6 +1,6 @@
 # สถานะความคืบหน้า — Thai Stock Analyzer
 
-> โดเมน: yongyut.it-tni.online · อัปเดต: 2026-06-24 (Phase 2 เสร็จ)
+> โดเมน: yongyut.it-tni.online · อัปเดต: 2026-06-24 (Phase 0–3 เสร็จ · sync ตัวเลขกับ pipeline รันล่าสุด)
 > เอกสารนี้สรุป "เว็บ/ระบบทำถึงไหนแล้ว" — ดูข้อกำหนดเต็มที่ [`REQUIREMENTS.md`](./REQUIREMENTS.md)
 
 ## ภาพรวม
@@ -12,10 +12,10 @@
 | เชื่อม frontend ↔ ข้อมูลจริง | 🟢 **เสร็จแล้ว** | app.js fetch summary/prices JSON |
 | Indicators + Scoring | 🟢 **เสร็จแล้ว** (Phase 1) | SMA/EMA/RSI/MACD/BB/ADX/ATR/Stoch/OBV + คะแนน+สัญญาณ |
 | พื้นฐาน (งบการเงิน) + ป้ายถือยาว | 🟢 **เสร็จแล้ว** (Phase 2) | P/E,P/BV,ROE,D/E,ปันผล,กำไรโต + คะแนน+เกรด+composite |
-| ข่าว + AI sentiment | 🟡 **infra พร้อม** (Phase 2) | ดึงข่าว+Claude พร้อมรัน — เปิดเมื่อตั้ง `ANTHROPIC_API_KEY` บน Actions |
+| ข่าว + AI sentiment | 🟢 **เชื่อม LLM ทำงานแล้ว** (Phase 2) · 🟡 ติดที่แหล่งข่าว | รองรับ **Gemini (Google AI Studio)** / Claude · ทดสอบจริงด้วย Gemini ผ่าน — แต่ข่าว Yahoo .BK แทบไม่มี/ไม่ตรงตัว (ดู audit) |
 | ระบบ login (FR-AUTH) | 🟢 **เสร็จแล้ว** | PHP session gate กั้นทั้ง /stock/ (html+js+json), hash รหัสผ่าน, disclaimer |
 | พอร์ต + watchlist (FR-PORT) | 🟢 **เสร็จแล้ว** (Phase 3) | เก็บจริงต่อผู้ใช้ผ่าน api.php, P/L EOD, สัดส่วน+กระจายเซกเตอร์, watchlist |
-| แจ้งเตือน (FR-ALERT) | 🟡 **infra พร้อม** (Phase 3) | Telegram สรุปรายวัน+สัญญาณเปลี่ยน — เปิดเมื่อตั้ง Secret TELEGRAM_* |
+| แจ้งเตือน (FR-ALERT) | 🟢 **Secret ตั้งแล้ว** (Phase 3) · 🟡 รอยืนยันส่งจริง | Telegram สรุปรายวัน+สัญญาณเปลี่ยน · ตั้ง `TELEGRAM_BOT_TOKEN`+`TELEGRAM_CHAT_ID` บน GitHub แล้ว 2026-06-24 (รอ run EOD รอบแรกยืนยันข้อความเด้งจริง) |
 | backtest พื้นฐาน | 🟢 **เสร็จแล้ว** (Phase 3) | replay สัญญาณเทคนิคย้อนหลัง วัด forward-return + edge |
 
 🟢 เสร็จใช้งานได้ · 🟡 บางส่วน · 🔴 ยังไม่เริ่ม
@@ -28,7 +28,7 @@
 - [x] master list หุ้นไทย — `master/thai-stocks.json` **58 ตัว** (SET50/100, 14 เซกเตอร์)
 - [x] Node.js pipeline ดึง EOD OHLCV จาก Yahoo (ไม่มี dependency, ใช้ `fetch` ของ Node 20)
 - [x] ทดสอบจริง: ดึง 1 ตัว → หลายตัว
-- [x] GitHub Actions skeleton — `.github/workflows/eod.yml` (cron 17:30 ICT)
+- [x] GitHub Actions skeleton — `.github/workflows/eod.yml` (**2 จังหวะ:** intraday ทุก 15 นาทีระหว่างตลาดเปิด + EOD เต็ม 17:30 ICT)
 
 **ผลทดสอบจริงบน host:**
 - PTT 1 ตัว → 488 แท่ง (ราคาย้อนหลัง 2 ปี)
@@ -68,25 +68,26 @@
 - [x] `pipeline/lib/yahoo.js` — เพิ่ม `fetchFundamentals()` (Yahoo quoteSummary + crumb/cookie auth) ดึง P/E, P/BV, ROE, ROA, D/E, ปันผล, กำไรโต YoY, อัตรากำไร, มาร์เก็ตแคป, beta + `fetchNews()` (คัด noise ออก)
 - [x] `pipeline/lib/fundamentals.js` — คะแนนพื้นฐาน 0–100 + เกรด A–D + **ป้าย "เหมาะถือยาว"** (ROE≥10% + ปันผล≥3% + P/E≤25 + หนี้ไม่สูง) + เหตุผลประกอบทุกข้อ
 - [x] `pipeline/lib/scoring.js` — เพิ่ม `compose()` รวม **composite 4 มิติ** (เทคนิค 45% + พื้นฐาน 30% + โมเมนตัม 15% + sentiment 10%) ปรับน้ำหนักอัตโนมัติเมื่อมิติใดไม่มีข้อมูล + สัญญาณตัดสินจาก composite
-- [x] `pipeline/lib/sentiment.js` — ข่าว → Claude API (Haiku, batch เดียวคุม token) สรุปไทย + คะแนน −1..+1 + ประเด็นเสี่ยง · **degrade อย่างซื่อสัตย์**: ไม่มี key → คืน null ไม่ปลอมข้อมูล
+- [x] `pipeline/lib/sentiment.js` — ข่าว → LLM (batch เดียวคุม token) สรุปไทย + คะแนน −1..+1 + ประเด็นเสี่ยง · **degrade อย่างซื่อสัตย์**: ไม่มี key → คืน null ไม่ปลอมข้อมูล
+  - **รองรับ 2 ค่าย (เพิ่ม 2026-06-24):** ใช้ **Gemini (Google AI Studio)** ถ้าตั้ง `GEMINI_API_KEY` (มี free tier) · ถ้าไม่มีจึงใช้ Claude จาก `ANTHROPIC_API_KEY` · ค่าเริ่มต้น `gemini-2.5-flash`
 - [x] `run.js` — ดึงราคา+งบ+ข่าวใน batch เดียว, compose, เขียน `fundamentals`/`sentiment`/`news` ลง JSON
 - [x] **Frontend ต่อข้อมูลจริง Phase 2:**
   - Dashboard: การ์ด "🌱 ถือยาวน่าสน", ตัวนับถือยาว, คอลัมน์พื้นฐานในตาราง, heatmap สี=composite
   - รายตัว: การ์ดงบการเงิน (8 อัตราส่วน+เหตุผล), ป้ายถือยาว, **เรดาร์ 4 มิติของจริง**, กล่องข่าว+sentiment
   - Screener: ฟิลเตอร์ พื้นฐานขั้นต่ำ/ปันผลขั้นต่ำ/เฉพาะถือยาว + คอลัมน์ พื้นฐาน/ปันผล/ถือยาว
 - [x] `.github/workflows/eod.yml` — ส่ง Secret `ANTHROPIC_API_KEY` ให้ pipeline (sentiment เปิดอัตโนมัติเมื่อตั้ง)
-- [x] **ทดสอบจริง 58/58 ตัว**: งบการเงินครบ 58/58, ถือยาว 11 ตัว, BUY 21 ตัว, หน้าเว็บ serve 200, JS parse ผ่านทุกไฟล์
+- [x] **ทดสอบจริง 58/58 ตัว** (รันล่าสุด 2026-06-24 08:06): งบการเงินครบ 58/58, ถือยาว 11 ตัว, **BUY 22 ตัว** (advancers 41), SET index 1549.46, หน้าเว็บ serve 200, JS parse ผ่านทุกไฟล์
 
 > ตัวอย่างผล: KTC พื้นฐาน 96 (A) · AMATA 93 (A, PE 8.39, ปันผล 4.1%) 🌱 · KKP ปันผล 6% 🌱
-> **sentiment ยังไม่ทำงาน** เพราะเครื่อง dev ไม่มี `ANTHROPIC_API_KEY` — จะเปิดเองเมื่อรันบน GitHub Actions ที่ตั้ง Secret
+> **sentiment เชื่อม LLM ทำงานแล้ว** — ทดสอบจริงด้วย Gemini 2.5 Flash 2026-06-24 (ดู 🔬 audit ด้านล่าง)
 
 ## ⏭️ งานที่เหลือ (ตาม Roadmap)
 
 **Phase 1 + 2** ✅ เสร็จแล้ว (ดูด้านบน)
 
 **Phase 2 — เก็บตก (ถ้าต้องการ)**
-- [ ] ตั้ง Secret `ANTHROPIC_API_KEY` บน GitHub → เปิด AI sentiment อัตโนมัติ
-- [ ] หาแหล่งข่าวไทยรายตัวที่ดีกว่า Yahoo (ปัจจุบัน Yahoo ข่าว .BK เป็น noise คัดทิ้งเกือบหมด)
+- [x] ตั้ง Secret LLM บน GitHub → เปิด AI sentiment อัตโนมัติ (ใช้ `GEMINI_API_KEY`, ตั้งแล้ว 2026-06-24)
+- [ ] 🔴 **หาแหล่งข่าวไทยรายตัวที่ดีกว่า Yahoo** — คอขวดตัวจริงของ sentiment: ทดสอบ 58 ตัว มีข่าวแค่ 3 ตัว และทั้ง 3 เป็นข่าวคนละบริษัท (ดู audit) · ตัวเลือก: SET API / ข่าวหุ้นไทย RSS / settrade
 
 **Phase 3 — พอร์ต + แจ้งเตือน + ความปลอดภัย** ✅ เสร็จแล้ว (2026-06-24)
 - [x] **ระบบ login (FR-AUTH)** — เสร็จ (ดูหัวข้อ 🔐 ด้านบน)
@@ -122,8 +123,24 @@
 
 ---
 
+## ⏱️ ตารางรันอัตโนมัติ (eod.yml — อัปเดต 2026-06-24)
+
+รัน 2 จังหวะในวันทำการ (จันทร์–ศุกร์) เลือกโหมดอัตโนมัติจาก cron ที่ trigger:
+
+| จังหวะ | cron (UTC) | เวลาไทย | โหมด | ทำอะไร |
+|---|---|---|---|---|
+| **Intraday** | `*/15 3-9 * * 1-5` | ทุก 15 นาที 10:00–16:30 | `--intraday` | ดึงราคา+เทคนิคเท่านั้น · **ไม่ดึงงบ/ข่าว · ไม่ยิง Telegram** · ข้าม backtest |
+| **EOD เต็ม** | `30 10 * * 1-5` | 17:30 | `--all` | ราคา+งบ+ข่าว+sentiment+เทียบสัญญาณ+**Telegram**+backtest |
+
+ทุกรอบ commit ผลลง repo (ป้าย `intraday <เวลา>` / `EOD <วันที่>`) + deploy ขึ้น Hostinger ถ้าตั้ง FTP secret · กดรันเองได้จากแท็บ Actions (`workflow_dispatch`, เลือก all/demo)
+
+> ⚠️ GitHub Actions cron มัก delay 5–15 นาทีช่วงโหลดสูง และอาจข้าม run บางรอบ — เป็น near-EOD ไม่ใช่ realtime เป๊ะ
+
+---
+
 ## ค้างไว้ / ต้องทำ
-- [ ] **push ขึ้น GitHub:** `git push -u origin main` (ต้องใช้ credential GitHub — Actions จะรันอัตโนมัติหลัง push)
+- [x] **push ขึ้น GitHub:** `origin` = `git@github.com:yongyut-cli/share-data.git` · local `main` sync กับ `origin/main` แล้ว (push ไปแล้ว 3 commit: Phase 0/1/2+3)
+- [ ] **commit ไฟล์ที่แก้ค้าง:** ปัจจุบันยังมี `PROGRESS.md` + `.github/workflows/eod.yml` ที่แก้แล้วแต่ยังไม่ commit/push
 - [ ] (ทางเลือก) ตั้ง Secrets `FTP_HOST/FTP_USER/FTP_PASS` ถ้าจะ deploy ขึ้น Hostinger ผ่าน FTP
 - [ ] ขยาย master list ให้ครบ ~800 ตัว + ระบบอัปเดตรายชื่ออัตโนมัติเดือนละครั้ง
 
@@ -131,18 +148,29 @@
 
 ## 🔍 ผลตรวจสอบ (audit 2026-06-24) — เทียบ PROGRESS ↔ ของจริงบนเครื่อง
 
-**สรุป: Phase 0 + Phase 1 เสร็จจริงตามที่เขียน ไม่ได้เคลมเกิน** ✅ ตรวจรายข้อ:
+**สรุป: Phase 0–3 เสร็จจริงตามที่เขียน ไม่ได้เคลมเกิน** ✅ (ตรวจซ้ำ 2026-06-24 — เทียบ doc กับไฟล์บนเครื่อง + เว็บสด) ตรวจรายข้อ:
 
 | ข้อเคลม | ตรวจจริง | ผล |
 |---|---|---|
 | Master list 58 ตัว | `master/thai-stocks.json` = 58 | ✅ |
-| ราคาย้อนหลัง ~2 ปี | `prices/ADVANC.json` = 488 แท่ง OHLCV จริง | ✅ |
+| ราคาย้อนหลัง ~2 ปี | `prices/ADVANC.json` = 489 แท่ง OHLCV จริง | ✅ |
 | Indicators ครบชุด | `lib/indicators.js` + score ฝังใน JSON (ema/rsi/macd/atr/adx/stoch) | ✅ |
 | Scoring + สัญญาณ + entry/stop/target + เหตุผล | `lib/scoring.js`, score ทุกตัว | ✅ |
-| SET index จริง | `summary.json` → SET 1543.44 | ✅ |
+| SET index จริง | `summary.json` → SET 1549.46 (รันล่าสุด) | ✅ |
 | Frontend 4 หน้า ต่อข้อมูลจริง ไม่ใช่ mock | `app.js` ใช้ `fetch()` summary/prices จริง, ไม่เหลือ mock | ✅ |
 | Data JSON | prices/ = 58 ไฟล์ + summary.json + meta.json | ✅ |
-| GitHub Actions cron | `.github/workflows/eod.yml` มีจริง | ✅ |
+| GitHub Actions cron | `.github/workflows/eod.yml` มีจริง · 2 schedule: `*/15 3-9 * * 1-5` (intraday) + `30 10 * * 1-5` (EOD) | ✅ |
+
+**ตรวจเว็บสด (HTTP จริง) 2026-06-24:**
+
+| ข้อเคลม | ตรวจจริง | ผล |
+|---|---|---|
+| `/` redirect → `/stock/` | curl → 302 → /stock/ | ✅ |
+| ไม่ล็อกอินเข้า `/stock/` ไม่ได้ | /stock/ + index.html → 302 → login.php | ✅ |
+| data .json กันรั่วจริง | `/stock/data/summary.json` ไม่ล็อกอิน → 403 `{"error":"unauthorized"}` | ✅ |
+| API กั้น session | `/stock/api.php` ไม่ล็อกอิน → 401 | ✅ |
+| กันเสิร์ฟ .php ตรง | `/stock/guard.php` → 403 | ✅ |
+| หน้า login + disclaimer | `/stock/login.php` → 200, มีคำเตือนความเสี่ยง | ✅ |
 
 ### ⚠️ ประเด็นที่พบเพิ่ม (ต้องแก้)
 - [x] **หน้า root ขึ้น Hostinger default** — แก้แล้ว 2026-06-24: `public_html/index.php` + `.htaccess` redirect `/` → `/stock/`
@@ -169,3 +197,29 @@
 **ทดสอบจริง (php -S, 10 เคส) ผ่านหมด:** root→/stock/ · html ไม่ล็อกอิน 302→login · summary.json ไม่ล็อกอิน 403 · รหัสผิดแจ้ง error · รหัสถูก 302+Set-Cookie(HttpOnly) · ล็อกอินแล้ว html/json/js = 200 · traversal+เรียก .php ตรง = บล็อก · logout คืนสภาพต้องล็อกอินใหม่
 
 > ⚠️ มี **รหัสผ่านชั่วคราว** seed ไว้ (user `yongyut`) — เจ้าของต้องเปลี่ยนทันทีด้วย `tools/set-password.php`
+
+---
+
+## 🔬 audit AI sentiment — ทดสอบจริงด้วย Gemini (2026-06-24)
+
+**สรุป: การเชื่อม LLM ทำงานครบ 100% · คอขวดอยู่ที่แหล่งข่าว ไม่ใช่ AI**
+
+ตั้ง `GEMINI_API_KEY` แล้วรัน `node pipeline/run.js --all` จริง (58/58 สำเร็จ):
+
+| ตรวจ | ผล |
+|---|---|
+| เลือก provider | ✅ ใช้ Gemini (gemini-2.5-flash) อัตโนมัติเมื่อมี `GEMINI_API_KEY` |
+| `meta.json` | ✅ `sentiment_enabled: true`, `sentiment_ok: 3` |
+| เรียก API + ตอบไทย + parse JSON + composite | ✅ ครบ (ทดสอบแยก: PTT +0.9, TRUE −0.9, KBANK +0.9 แม่นยำ) |
+| degrade ซื่อสัตย์ | ✅ ไม่มี key → null; key fail → retry แล้ว skip |
+
+⚠️ **ปัญหาที่เจอ — แหล่งข่าว Yahoo ใช้ไม่ได้กับหุ้นไทย:** จาก 58 ตัว มีข่าวแค่ **3 ตัว** และทั้ง 3 เป็นข่าว **คนละบริษัท**:
+- ADVANC → ไปแมตช์ "Advanced Medical Solutions" (บริษัทการแพทย์ UK)
+- GLOBAL → ไปแมตช์การแข่งขัน Microsoft Excel
+- TRUE → ไปแมตช์ข่าวเงินเฟ้อสหรัฐฯ
+
+Gemini **จับได้ว่าข่าวไม่เกี่ยวข้องและให้คะแนน 0 พร้อมอธิบายเหตุผล** (พฤติกรรมถูกต้อง ไม่มั่ว) → พิสูจน์ว่า AI ดี แต่ **ต้องเปลี่ยนแหล่งข่าวเป็นของไทยรายตัว** sentiment จึงจะมีความหมาย (งานเก็บตก Phase 2)
+
+**การตั้งค่า:** local รันได้ผ่าน `.env` (gitignore แล้ว, auto-load ใน `run.js`) · GitHub Actions ตั้ง Secret `GEMINI_API_KEY` + `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` แล้ว (2026-06-24) · ดูคู่มือ [`SETUP-SECRETS.md`](./SETUP-SECRETS.md)
+
+> ✅ **ยืนยัน Gemini ใช้งานได้จริง** 2026-06-24 — ยิง live call ไป `generativelanguage.googleapis.com` (gemini-2.5-flash) ได้ HTTP 200 · Telegram secret ตั้งแล้ว รอ run EOD รอบแรกยืนยันข้อความเด้ง

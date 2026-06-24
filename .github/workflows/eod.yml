@@ -1,10 +1,15 @@
 name: EOD pipeline (Thai Stock Analyzer)
 
-# รันอัตโนมัติทุกวันทำการ เวลา 17:30 ICT (= 10:30 UTC) หลังตลาด SET ปิด
+# รันอัตโนมัติ 2 จังหวะในวันทำการ (จันทร์–ศุกร์):
+#   1) ทุก 15 นาที ระหว่างตลาด SET เปิด (10:00–16:30 ICT = 03:00–09:30 UTC)
+#      → โหมด --intraday: ดึงเฉพาะราคา/เทคนิค ไม่ดึงงบ/ข่าว ไม่ยิง Telegram (เบา+ไม่รบกวน)
+#   2) 17:30 ICT (= 10:30 UTC) หลังตลาดปิด
+#      → โหมด --all เต็ม: ราคา + งบ + ข่าว + sentiment + เทียบสัญญาณ + แจ้งเตือน Telegram
 # และสั่งรันเองได้จากแท็บ Actions (workflow_dispatch)
 on:
   schedule:
-    - cron: '30 10 * * 1-5'
+    - cron: '*/15 3-9 * * 1-5'   # intraday (ระหว่างตลาดเปิด)
+    - cron: '30 10 * * 1-5'      # EOD เต็ม (หลังปิด)
   workflow_dispatch:
     inputs:
       mode:
@@ -31,19 +36,32 @@ jobs:
           node-version: '20'
 
       # ไม่มี dependency ภายนอก (ใช้ fetch ในตัวของ Node 20) — ข้าม npm install
-      # Phase 2: ถ้าตั้ง Secret ANTHROPIC_API_KEY ไว้ จะวิเคราะห์ sentiment ข่าวด้วย Claude อัตโนมัติ
-      #          ถ้าไม่ตั้ง → ข้าม sentiment เงียบ ๆ (เทคนิค+พื้นฐานยังทำงานครบ)
+      # Phase 2: sentiment ข่าวด้วย LLM — ตั้ง Secret อย่างใดอย่างหนึ่ง
+      #          · GEMINI_API_KEY    → ใช้ Google AI Studio (Gemini, มี free tier) [มาก่อน]
+      #          · ANTHROPIC_API_KEY → ใช้ Claude (ถ้าไม่ได้ตั้ง Gemini)
+      #          ถ้าไม่ตั้งเลย → ข้าม sentiment เงียบ ๆ (เทคนิค+พื้นฐานยังทำงานครบ)
       # Phase 3: ถ้าตั้ง Secret TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID จะส่งแจ้งเตือน
       #          สรุปรายวัน + สัญญาณเปลี่ยน · ถ้าไม่ตั้ง → ข้ามเงียบ ๆ
       - name: Run EOD pipeline
         env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: node pipeline/run.js --${{ github.event.inputs.mode || 'all' }}
+        run: |
+          if [ "${{ github.event.schedule }}" = "*/15 3-9 * * 1-5" ]; then
+            echo "▶ Intraday update — ราคา/เทคนิคเท่านั้น (ไม่ดึงงบ/ข่าว, ไม่ยิง Telegram)"
+            node pipeline/run.js --intraday
+          else
+            MODE="${{ github.event.inputs.mode || 'all' }}"
+            echo "▶ EOD full update — node pipeline/run.js --$MODE"
+            node pipeline/run.js --"$MODE"
+          fi
 
       # Phase 3: backtest คุณภาพสัญญาณ → data/backtest.json (ไม่ใช้ network, ~3 วิ)
+      # ข้ามในรอบ intraday (สัญญาณ backtest อิง EOD — ไม่จำเป็นต้องคำนวณทุก 15 นาที)
       - name: Backtest signal quality
+        if: ${{ github.event.schedule != '*/15 3-9 * * 1-5' }}
         run: node pipeline/backtest.js
         continue-on-error: true
 
@@ -56,7 +74,12 @@ jobs:
           if git diff --cached --quiet; then
             echo "ไม่มีข้อมูลเปลี่ยนแปลง — ข้าม commit"
           else
-            git commit -m "data: EOD update $(date -u +%Y-%m-%d)"
+            if [ "${{ github.event.schedule }}" = "*/15 3-9 * * 1-5" ]; then
+              LABEL="intraday $(date -u +%Y-%m-%d\ %H:%MZ)"
+            else
+              LABEL="EOD $(date -u +%Y-%m-%d)"
+            fi
+            git commit -m "data: $LABEL update"
             git push
           fi
 
