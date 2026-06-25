@@ -144,7 +144,9 @@
 - [x] **แหล่งข่าวไทย + frontend ค้นหา/แบ่งหน้า:** commit + push แล้ว 2026-06-24 (`pipeline/lib/news.js`, `run.js`, frontend search/pagination)
 - [x] **frontend รองรับ master list ใหญ่:** เพิ่มช่องค้นหา (ชื่อย่อ/ไทย/อังกฤษ) + แบ่งหน้า 25 ตัว/หน้า บน dashboard + screener + แก้ dropdown พื้นขาวมองไม่เห็น (`app.js`/`style.css`/`index.html`/`screener.html`)
 - [ ] (ทางเลือก) ตั้ง Secrets `FTP_HOST/FTP_USER/FTP_PASS` ถ้าจะ deploy ขึ้น Hostinger ผ่าน FTP
-- [ ] ขยาย master list ให้ครบ ~800 ตัว + ระบบอัปเดตรายชื่ออัตโนมัติเดือนละครั้ง — **frontend พร้อมแล้ว** (ค้นหา/แบ่งหน้า) · เหลือ (ก) หาแหล่งรายชื่อทั้งตลาด SET/mai (ข) ประเมินเวลา/อัตรา rate-limit ของ Yahoo+Google News เมื่อรัน 800 ตัว/รอบ + ต้นทุน token sentiment — ดูหมายเหตุท้ายไฟล์
+- [x] **ขยาย master list ให้ครบเต็มตลาด** — ✅ **เสร็จ 2026-06-25**: `master/thai-stocks.json` **58 → 795 ตัว** (เพิ่ม **737 ตัว**) · แหล่ง: Yahoo Finance screener (`region=th`, `EQUITY`) ดึง 2,157 instrument แล้วกรองเหลือบริษัทจดทะเบียนจริง (เงื่อนไข: longName มี "Public Company Limited" + ตัด NVDR `-R` 838 ตัว / ETF / DR ต่างชาติ เช่น NVDA80/AAPL01 + ตัด DR ที่หลุด 4 ตัว JAP03/TAIWANAI13/TAIWANHD13/THAIBEV19) · ตรวจ: 58 ตัวเดิมอยู่ครบ (ชื่อไทย+เซกเตอร์เดิม), ไม่มี dup, `fetch-master.js` โหลดผ่าน, spot-check ราคา 7 ตัวใหม่ดึงได้จริง (ปิด 2026-06-25)
+  - ⚠️ **ค้าง (enrichment):** 737 ตัวใหม่ `sector=อื่นๆ` + `name_th`=ชื่ออังกฤษ (Yahoo ไม่ให้ชื่อไทย/เซกเตอร์) · `market`=SET ทั้งหมด (Yahoo แยก mai ไม่ได้)
+  - ⚠️ **ผลกระทบ operational ที่ต้องจัดการก่อนรัน 795 จริงบน CI:** (ก) **sentiment** Gemini free tier 20 req/วัน — 795 ตัว chunk 12 = ~67 req/รอบ **เกินโควต้ามาก** → ต้องเปิด billing หรือจำกัดเฉพาะ top-N (ข) **ข่าว** Google News RSS 795 req/รอบ อาจช้า/โดน rate-limit (ค) เวลา EOD ยาวขึ้น (~5 เท่า) · **โค้ดรีเฟรชรายชื่ออยู่ใน repo แล้ว** — `node pipeline/fetch-master.js --refresh` (`fetchMarketList()`+`refreshMaster()`) ดึง Yahoo screener + กรอง + merge โดยคงรายการ enrich เดิม (idempotent: รันซ้ำเพิ่ม 0) · **เหลือ wire เข้า workflow ให้รันเดือนละครั้งอัตโนมัติ**
 
 ---
 

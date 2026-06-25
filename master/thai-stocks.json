@@ -1,67 +1,5578 @@
 {
   "_meta": {
-    "note": "Seed master list หุ้นไทย (เน้น SET50/SET100 + ตัวที่ใช้ใน UI). ยังไม่ครบ ~800 ตัว — Phase 0 ใช้ seed นี้ก่อน, ฟีเจอร์ดึงรายชื่อทั้งตลาดอัตโนมัติ (เดือนละครั้ง) ทำใน Phase หลัง. ดู fetch-master.js",
+    "note": "Master list หุ้นไทย — ขยายเต็มตลาดจาก Yahoo screener (region=th, EQUITY). seed ตัวแรกมีชื่อไทย+เซกเตอร์จริง; ส่วนที่เพิ่ม sector=อื่นๆ + name_th=ชื่ออังกฤษ. ตัด NVDR(-R)/DR/ETF. mai ติดป้าย SET.",
     "schema": "symbol, name_th, name_en, market (SET|mai), sector",
-    "updated": "2026-06-24"
+    "source": "Yahoo Finance screener (region=th) — filter longName มี \"Public Company Limited\"",
+    "updated": "2026-06-25",
+    "count_total": 795,
+    "count_seed_enriched": 58,
+    "count_expanded": 737
   },
   "stocks": [
-    { "symbol": "PTT", "name_th": "ปตท.", "name_en": "PTT", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "PTTEP", "name_th": "ปตท. สำรวจและผลิตปิโตรเลียม", "name_en": "PTT Exploration & Production", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "PTTGC", "name_th": "พีทีที โกลบอล เคมิคอล", "name_en": "PTT Global Chemical", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "TOP", "name_th": "ไทยออยล์", "name_en": "Thai Oil", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "BCP", "name_th": "บางจาก คอร์ปอเรชั่น", "name_en": "Bangchak", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "GULF", "name_th": "กัลฟ์ เอ็นเนอร์จี ดีเวลลอปเมนท์", "name_en": "Gulf Energy", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "GPSC", "name_th": "โกลบอล เพาเวอร์ ซินเนอร์ยี่", "name_en": "Global Power Synergy", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "EGCO", "name_th": "ผลิตไฟฟ้า", "name_en": "Electricity Generating", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "RATCH", "name_th": "ราช กรุ๊ป", "name_en": "Ratch Group", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "OR", "name_th": "ปตท. น้ำมันและการค้าปลีก", "name_en": "PTT Oil and Retail Business", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "IVL", "name_th": "อินโดรามา เวนเจอร์ส", "name_en": "Indorama Ventures", "market": "SET", "sector": "ปิโตรเคมี" },
-    { "symbol": "SCC", "name_th": "ปูนซิเมนต์ไทย", "name_en": "Siam Cement", "market": "SET", "sector": "วัสดุก่อสร้าง" },
-    { "symbol": "SCGP", "name_th": "เอสซีจี แพคเกจจิ้ง", "name_en": "SCG Packaging", "market": "SET", "sector": "บรรจุภัณฑ์" },
-    { "symbol": "KBANK", "name_th": "ธนาคารกสิกรไทย", "name_en": "Kasikornbank", "market": "SET", "sector": "ธนาคาร" },
-    { "symbol": "SCB", "name_th": "เอสซีบี เอกซ์", "name_en": "SCB X", "market": "SET", "sector": "ธนาคาร" },
-    { "symbol": "BBL", "name_th": "ธนาคารกรุงเทพ", "name_en": "Bangkok Bank", "market": "SET", "sector": "ธนาคาร" },
-    { "symbol": "KTB", "name_th": "ธนาคารกรุงไทย", "name_en": "Krung Thai Bank", "market": "SET", "sector": "ธนาคาร" },
-    { "symbol": "BAY", "name_th": "ธนาคารกรุงศรีอยุธยา", "name_en": "Bank of Ayudhya", "market": "SET", "sector": "ธนาคาร" },
-    { "symbol": "TTB", "name_th": "ทีเอ็มบีธนชาต", "name_en": "TMBThanachart Bank", "market": "SET", "sector": "ธนาคาร" },
-    { "symbol": "KKP", "name_th": "เกียรตินาคินภัทร", "name_en": "Kiatnakin Phatra", "market": "SET", "sector": "ธนาคาร" },
-    { "symbol": "TISCO", "name_th": "ทิสโก้ไฟแนนเชียลกรุ๊ป", "name_en": "Tisco Financial", "market": "SET", "sector": "ธนาคาร" },
-    { "symbol": "MTC", "name_th": "เมืองไทย แคปปิตอล", "name_en": "Muangthai Capital", "market": "SET", "sector": "เงินทุน" },
-    { "symbol": "SAWAD", "name_th": "ศรีสวัสดิ์ คอร์ปอเรชั่น", "name_en": "Srisawad", "market": "SET", "sector": "เงินทุน" },
-    { "symbol": "CPALL", "name_th": "ซีพี ออลล์", "name_en": "CP All", "market": "SET", "sector": "ค้าปลีก" },
-    { "symbol": "CPAXT", "name_th": "ซีพี แอ็กซ์ตร้า", "name_en": "CP Axtra", "market": "SET", "sector": "ค้าปลีก" },
-    { "symbol": "BJC", "name_th": "เบอร์ลี่ ยุคเกอร์", "name_en": "Berli Jucker", "market": "SET", "sector": "ค้าปลีก" },
-    { "symbol": "HMPRO", "name_th": "โฮม โปรดักส์ เซ็นเตอร์", "name_en": "Home Product Center", "market": "SET", "sector": "ค้าปลีก" },
-    { "symbol": "GLOBAL", "name_th": "สยามโกลบอลเฮ้าส์", "name_en": "Siam Global House", "market": "SET", "sector": "ค้าปลีก" },
-    { "symbol": "COM7", "name_th": "คอมเซเว่น", "name_en": "Com7", "market": "SET", "sector": "ค้าปลีก" },
-    { "symbol": "CRC", "name_th": "เซ็นทรัล รีเทล คอร์ปอเรชั่น", "name_en": "Central Retail", "market": "SET", "sector": "ค้าปลีก" },
-    { "symbol": "ADVANC", "name_th": "แอดวานซ์ อินโฟร์ เซอร์วิส", "name_en": "Advanced Info Service", "market": "SET", "sector": "สื่อสาร" },
-    { "symbol": "TRUE", "name_th": "ทรู คอร์ปอเรชั่น", "name_en": "True Corporation", "market": "SET", "sector": "สื่อสาร" },
-    { "symbol": "DELTA", "name_th": "เดลต้า อีเลคโทรนิคส์ (ประเทศไทย)", "name_en": "Delta Electronics", "market": "SET", "sector": "ชิ้นส่วนอิเล็กทรอนิกส์" },
-    { "symbol": "AOT", "name_th": "ท่าอากาศยานไทย", "name_en": "Airports of Thailand", "market": "SET", "sector": "ขนส่ง" },
-    { "symbol": "BEM", "name_th": "ทางด่วนและรถไฟฟ้ากรุงเทพ", "name_en": "Bangkok Expressway and Metro", "market": "SET", "sector": "ขนส่ง" },
-    { "symbol": "BTS", "name_th": "บีทีเอส กรุ๊ป โฮลดิ้งส์", "name_en": "BTS Group", "market": "SET", "sector": "ขนส่ง" },
-    { "symbol": "BDMS", "name_th": "กรุงเทพดุสิตเวชการ", "name_en": "Bangkok Dusit Medical Services", "market": "SET", "sector": "การแพทย์" },
-    { "symbol": "BH", "name_th": "โรงพยาบาลบำรุงราษฎร์", "name_en": "Bumrungrad Hospital", "market": "SET", "sector": "การแพทย์" },
-    { "symbol": "BCH", "name_th": "บางกอก เชน ฮอสปิทอล", "name_en": "Bangkok Chain Hospital", "market": "SET", "sector": "การแพทย์" },
-    { "symbol": "CPN", "name_th": "เซ็นทรัลพัฒนา", "name_en": "Central Pattana", "market": "SET", "sector": "อสังหาริมทรัพย์" },
-    { "symbol": "AWC", "name_th": "แอสเสท เวิรด์ คอร์ป", "name_en": "Asset World Corp", "market": "SET", "sector": "อสังหาริมทรัพย์" },
-    { "symbol": "LH", "name_th": "แลนด์ แอนด์ เฮ้าส์", "name_en": "Land & Houses", "market": "SET", "sector": "อสังหาริมทรัพย์" },
-    { "symbol": "SPALI", "name_th": "ศุภาลัย", "name_en": "Supalai", "market": "SET", "sector": "อสังหาริมทรัพย์" },
-    { "symbol": "AP", "name_th": "เอพี (ไทยแลนด์)", "name_en": "AP Thailand", "market": "SET", "sector": "อสังหาริมทรัพย์" },
-    { "symbol": "CPF", "name_th": "เจริญโภคภัณฑ์อาหาร", "name_en": "Charoen Pokphand Foods", "market": "SET", "sector": "อาหาร" },
-    { "symbol": "TU", "name_th": "ไทยยูเนี่ยน กรุ๊ป", "name_en": "Thai Union Group", "market": "SET", "sector": "อาหาร" },
-    { "symbol": "MINT", "name_th": "ไมเนอร์ อินเตอร์เนชั่นแนล", "name_en": "Minor International", "market": "SET", "sector": "อาหาร" },
-    { "symbol": "OSP", "name_th": "โอสถสภา", "name_en": "Osotspa", "market": "SET", "sector": "อาหาร" },
-    { "symbol": "CBG", "name_th": "คาราบาวกรุ๊ป", "name_en": "Carabao Group", "market": "SET", "sector": "อาหาร" },
-    { "symbol": "KTC", "name_th": "บัตรกรุงไทย", "name_en": "Krungthai Card", "market": "SET", "sector": "เงินทุน" },
-    { "symbol": "EA", "name_th": "พลังงานบริสุทธิ์", "name_en": "Energy Absolute", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "BGRIM", "name_th": "บี.กริม เพาเวอร์", "name_en": "B.Grimm Power", "market": "SET", "sector": "พลังงาน" },
-    { "symbol": "WHA", "name_th": "ดับบลิวเอชเอ คอร์ปอเรชั่น", "name_en": "WHA Corporation", "market": "SET", "sector": "นิคมอุตสาหกรรม" },
-    { "symbol": "AMATA", "name_th": "อมตะ คอร์ปอเรชัน", "name_en": "Amata Corporation", "market": "SET", "sector": "นิคมอุตสาหกรรม" },
-    { "symbol": "KCE", "name_th": "เคซีอี อีเลคโทรนิคส์", "name_en": "KCE Electronics", "market": "SET", "sector": "ชิ้นส่วนอิเล็กทรอนิกส์" },
-    { "symbol": "HANA", "name_th": "ฮานา ไมโครอิเล็คโทรนิคส", "name_en": "Hana Microelectronics", "market": "SET", "sector": "ชิ้นส่วนอิเล็กทรอนิกส์" },
-    { "symbol": "JMT", "name_th": "เจ เอ็ม ที เน็ทเวอร์ค เซอร์วิสเซ็ส", "name_en": "JMT Network Services", "market": "SET", "sector": "เงินทุน" },
-    { "symbol": "JMART", "name_th": "เจ มาร์ท", "name_en": "Jaymart Group", "market": "SET", "sector": "ค้าปลีก" }
+    {
+      "symbol": "PTT",
+      "name_th": "ปตท.",
+      "name_en": "PTT",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "PTTEP",
+      "name_th": "ปตท. สำรวจและผลิตปิโตรเลียม",
+      "name_en": "PTT Exploration & Production",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "PTTGC",
+      "name_th": "พีทีที โกลบอล เคมิคอล",
+      "name_en": "PTT Global Chemical",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "TOP",
+      "name_th": "ไทยออยล์",
+      "name_en": "Thai Oil",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "BCP",
+      "name_th": "บางจาก คอร์ปอเรชั่น",
+      "name_en": "Bangchak",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "GULF",
+      "name_th": "กัลฟ์ เอ็นเนอร์จี ดีเวลลอปเมนท์",
+      "name_en": "Gulf Energy",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "GPSC",
+      "name_th": "โกลบอล เพาเวอร์ ซินเนอร์ยี่",
+      "name_en": "Global Power Synergy",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "EGCO",
+      "name_th": "ผลิตไฟฟ้า",
+      "name_en": "Electricity Generating",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "RATCH",
+      "name_th": "ราช กรุ๊ป",
+      "name_en": "Ratch Group",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "OR",
+      "name_th": "ปตท. น้ำมันและการค้าปลีก",
+      "name_en": "PTT Oil and Retail Business",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "IVL",
+      "name_th": "อินโดรามา เวนเจอร์ส",
+      "name_en": "Indorama Ventures",
+      "market": "SET",
+      "sector": "ปิโตรเคมี"
+    },
+    {
+      "symbol": "SCC",
+      "name_th": "ปูนซิเมนต์ไทย",
+      "name_en": "Siam Cement",
+      "market": "SET",
+      "sector": "วัสดุก่อสร้าง"
+    },
+    {
+      "symbol": "SCGP",
+      "name_th": "เอสซีจี แพคเกจจิ้ง",
+      "name_en": "SCG Packaging",
+      "market": "SET",
+      "sector": "บรรจุภัณฑ์"
+    },
+    {
+      "symbol": "KBANK",
+      "name_th": "ธนาคารกสิกรไทย",
+      "name_en": "Kasikornbank",
+      "market": "SET",
+      "sector": "ธนาคาร"
+    },
+    {
+      "symbol": "SCB",
+      "name_th": "เอสซีบี เอกซ์",
+      "name_en": "SCB X",
+      "market": "SET",
+      "sector": "ธนาคาร"
+    },
+    {
+      "symbol": "BBL",
+      "name_th": "ธนาคารกรุงเทพ",
+      "name_en": "Bangkok Bank",
+      "market": "SET",
+      "sector": "ธนาคาร"
+    },
+    {
+      "symbol": "KTB",
+      "name_th": "ธนาคารกรุงไทย",
+      "name_en": "Krung Thai Bank",
+      "market": "SET",
+      "sector": "ธนาคาร"
+    },
+    {
+      "symbol": "BAY",
+      "name_th": "ธนาคารกรุงศรีอยุธยา",
+      "name_en": "Bank of Ayudhya",
+      "market": "SET",
+      "sector": "ธนาคาร"
+    },
+    {
+      "symbol": "TTB",
+      "name_th": "ทีเอ็มบีธนชาต",
+      "name_en": "TMBThanachart Bank",
+      "market": "SET",
+      "sector": "ธนาคาร"
+    },
+    {
+      "symbol": "KKP",
+      "name_th": "เกียรตินาคินภัทร",
+      "name_en": "Kiatnakin Phatra",
+      "market": "SET",
+      "sector": "ธนาคาร"
+    },
+    {
+      "symbol": "TISCO",
+      "name_th": "ทิสโก้ไฟแนนเชียลกรุ๊ป",
+      "name_en": "Tisco Financial",
+      "market": "SET",
+      "sector": "ธนาคาร"
+    },
+    {
+      "symbol": "MTC",
+      "name_th": "เมืองไทย แคปปิตอล",
+      "name_en": "Muangthai Capital",
+      "market": "SET",
+      "sector": "เงินทุน"
+    },
+    {
+      "symbol": "SAWAD",
+      "name_th": "ศรีสวัสดิ์ คอร์ปอเรชั่น",
+      "name_en": "Srisawad",
+      "market": "SET",
+      "sector": "เงินทุน"
+    },
+    {
+      "symbol": "CPALL",
+      "name_th": "ซีพี ออลล์",
+      "name_en": "CP All",
+      "market": "SET",
+      "sector": "ค้าปลีก"
+    },
+    {
+      "symbol": "CPAXT",
+      "name_th": "ซีพี แอ็กซ์ตร้า",
+      "name_en": "CP Axtra",
+      "market": "SET",
+      "sector": "ค้าปลีก"
+    },
+    {
+      "symbol": "BJC",
+      "name_th": "เบอร์ลี่ ยุคเกอร์",
+      "name_en": "Berli Jucker",
+      "market": "SET",
+      "sector": "ค้าปลีก"
+    },
+    {
+      "symbol": "HMPRO",
+      "name_th": "โฮม โปรดักส์ เซ็นเตอร์",
+      "name_en": "Home Product Center",
+      "market": "SET",
+      "sector": "ค้าปลีก"
+    },
+    {
+      "symbol": "GLOBAL",
+      "name_th": "สยามโกลบอลเฮ้าส์",
+      "name_en": "Siam Global House",
+      "market": "SET",
+      "sector": "ค้าปลีก"
+    },
+    {
+      "symbol": "COM7",
+      "name_th": "คอมเซเว่น",
+      "name_en": "Com7",
+      "market": "SET",
+      "sector": "ค้าปลีก"
+    },
+    {
+      "symbol": "CRC",
+      "name_th": "เซ็นทรัล รีเทล คอร์ปอเรชั่น",
+      "name_en": "Central Retail",
+      "market": "SET",
+      "sector": "ค้าปลีก"
+    },
+    {
+      "symbol": "ADVANC",
+      "name_th": "แอดวานซ์ อินโฟร์ เซอร์วิส",
+      "name_en": "Advanced Info Service",
+      "market": "SET",
+      "sector": "สื่อสาร"
+    },
+    {
+      "symbol": "TRUE",
+      "name_th": "ทรู คอร์ปอเรชั่น",
+      "name_en": "True Corporation",
+      "market": "SET",
+      "sector": "สื่อสาร"
+    },
+    {
+      "symbol": "DELTA",
+      "name_th": "เดลต้า อีเลคโทรนิคส์ (ประเทศไทย)",
+      "name_en": "Delta Electronics",
+      "market": "SET",
+      "sector": "ชิ้นส่วนอิเล็กทรอนิกส์"
+    },
+    {
+      "symbol": "AOT",
+      "name_th": "ท่าอากาศยานไทย",
+      "name_en": "Airports of Thailand",
+      "market": "SET",
+      "sector": "ขนส่ง"
+    },
+    {
+      "symbol": "BEM",
+      "name_th": "ทางด่วนและรถไฟฟ้ากรุงเทพ",
+      "name_en": "Bangkok Expressway and Metro",
+      "market": "SET",
+      "sector": "ขนส่ง"
+    },
+    {
+      "symbol": "BTS",
+      "name_th": "บีทีเอส กรุ๊ป โฮลดิ้งส์",
+      "name_en": "BTS Group",
+      "market": "SET",
+      "sector": "ขนส่ง"
+    },
+    {
+      "symbol": "BDMS",
+      "name_th": "กรุงเทพดุสิตเวชการ",
+      "name_en": "Bangkok Dusit Medical Services",
+      "market": "SET",
+      "sector": "การแพทย์"
+    },
+    {
+      "symbol": "BH",
+      "name_th": "โรงพยาบาลบำรุงราษฎร์",
+      "name_en": "Bumrungrad Hospital",
+      "market": "SET",
+      "sector": "การแพทย์"
+    },
+    {
+      "symbol": "BCH",
+      "name_th": "บางกอก เชน ฮอสปิทอล",
+      "name_en": "Bangkok Chain Hospital",
+      "market": "SET",
+      "sector": "การแพทย์"
+    },
+    {
+      "symbol": "CPN",
+      "name_th": "เซ็นทรัลพัฒนา",
+      "name_en": "Central Pattana",
+      "market": "SET",
+      "sector": "อสังหาริมทรัพย์"
+    },
+    {
+      "symbol": "AWC",
+      "name_th": "แอสเสท เวิรด์ คอร์ป",
+      "name_en": "Asset World Corp",
+      "market": "SET",
+      "sector": "อสังหาริมทรัพย์"
+    },
+    {
+      "symbol": "LH",
+      "name_th": "แลนด์ แอนด์ เฮ้าส์",
+      "name_en": "Land & Houses",
+      "market": "SET",
+      "sector": "อสังหาริมทรัพย์"
+    },
+    {
+      "symbol": "SPALI",
+      "name_th": "ศุภาลัย",
+      "name_en": "Supalai",
+      "market": "SET",
+      "sector": "อสังหาริมทรัพย์"
+    },
+    {
+      "symbol": "AP",
+      "name_th": "เอพี (ไทยแลนด์)",
+      "name_en": "AP Thailand",
+      "market": "SET",
+      "sector": "อสังหาริมทรัพย์"
+    },
+    {
+      "symbol": "CPF",
+      "name_th": "เจริญโภคภัณฑ์อาหาร",
+      "name_en": "Charoen Pokphand Foods",
+      "market": "SET",
+      "sector": "อาหาร"
+    },
+    {
+      "symbol": "TU",
+      "name_th": "ไทยยูเนี่ยน กรุ๊ป",
+      "name_en": "Thai Union Group",
+      "market": "SET",
+      "sector": "อาหาร"
+    },
+    {
+      "symbol": "MINT",
+      "name_th": "ไมเนอร์ อินเตอร์เนชั่นแนล",
+      "name_en": "Minor International",
+      "market": "SET",
+      "sector": "อาหาร"
+    },
+    {
+      "symbol": "OSP",
+      "name_th": "โอสถสภา",
+      "name_en": "Osotspa",
+      "market": "SET",
+      "sector": "อาหาร"
+    },
+    {
+      "symbol": "CBG",
+      "name_th": "คาราบาวกรุ๊ป",
+      "name_en": "Carabao Group",
+      "market": "SET",
+      "sector": "อาหาร"
+    },
+    {
+      "symbol": "KTC",
+      "name_th": "บัตรกรุงไทย",
+      "name_en": "Krungthai Card",
+      "market": "SET",
+      "sector": "เงินทุน"
+    },
+    {
+      "symbol": "EA",
+      "name_th": "พลังงานบริสุทธิ์",
+      "name_en": "Energy Absolute",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "BGRIM",
+      "name_th": "บี.กริม เพาเวอร์",
+      "name_en": "B.Grimm Power",
+      "market": "SET",
+      "sector": "พลังงาน"
+    },
+    {
+      "symbol": "WHA",
+      "name_th": "ดับบลิวเอชเอ คอร์ปอเรชั่น",
+      "name_en": "WHA Corporation",
+      "market": "SET",
+      "sector": "นิคมอุตสาหกรรม"
+    },
+    {
+      "symbol": "AMATA",
+      "name_th": "อมตะ คอร์ปอเรชัน",
+      "name_en": "Amata Corporation",
+      "market": "SET",
+      "sector": "นิคมอุตสาหกรรม"
+    },
+    {
+      "symbol": "KCE",
+      "name_th": "เคซีอี อีเลคโทรนิคส์",
+      "name_en": "KCE Electronics",
+      "market": "SET",
+      "sector": "ชิ้นส่วนอิเล็กทรอนิกส์"
+    },
+    {
+      "symbol": "HANA",
+      "name_th": "ฮานา ไมโครอิเล็คโทรนิคส",
+      "name_en": "Hana Microelectronics",
+      "market": "SET",
+      "sector": "ชิ้นส่วนอิเล็กทรอนิกส์"
+    },
+    {
+      "symbol": "JMT",
+      "name_th": "เจ เอ็ม ที เน็ทเวอร์ค เซอร์วิสเซ็ส",
+      "name_en": "JMT Network Services",
+      "market": "SET",
+      "sector": "เงินทุน"
+    },
+    {
+      "symbol": "JMART",
+      "name_th": "เจ มาร์ท",
+      "name_en": "Jaymart Group",
+      "market": "SET",
+      "sector": "ค้าปลีก"
+    },
+    {
+      "symbol": "2S",
+      "name_th": "2S Metal",
+      "name_en": "2S Metal Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "88TH",
+      "name_th": "88(Thailand)",
+      "name_en": "88(Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "A",
+      "name_th": "Areeya Property",
+      "name_en": "Areeya Property Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "A5",
+      "name_th": "Asset Five Group",
+      "name_en": "Asset Five Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AAI",
+      "name_th": "Asian Alliance International",
+      "name_en": "Asian Alliance International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AAV",
+      "name_th": "Asia Aviation",
+      "name_en": "Asia Aviation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ABM",
+      "name_th": "Asia Biomass",
+      "name_en": "Asia Biomass Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ACC",
+      "name_th": "Advanced Connection Corporation",
+      "name_en": "Advanced Connection Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ACE",
+      "name_th": "Absolute Clean Energy",
+      "name_en": "Absolute Clean Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ACG",
+      "name_th": "Autocorp Holding",
+      "name_en": "Autocorp Holding Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ADB",
+      "name_th": "Applied DB",
+      "name_en": "Applied DB Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ADD",
+      "name_th": "AddTech Hub",
+      "name_en": "AddTech Hub Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AE",
+      "name_th": "All Energy & Utilities",
+      "name_en": "All Energy & Utilities Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AEONTS",
+      "name_th": "AEON Thana Sinsap (Thailand)",
+      "name_en": "AEON Thana Sinsap (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AF",
+      "name_th": "AIRA Factoring",
+      "name_en": "AIRA Factoring Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AFC",
+      "name_th": "Asia Fiber",
+      "name_en": "Asia Fiber Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AGE",
+      "name_th": "Asia Green Energy",
+      "name_en": "Asia Green Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AH",
+      "name_th": "AAPICO Hitech",
+      "name_en": "AAPICO Hitech Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AHC",
+      "name_th": "Aikchol Hospital",
+      "name_en": "Aikchol Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AI",
+      "name_th": "Asian Insulators",
+      "name_en": "Asian Insulators Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AIE",
+      "name_th": "AI Energy",
+      "name_en": "AI Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AIRA",
+      "name_th": "AIRA Capital",
+      "name_en": "AIRA Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AIT",
+      "name_th": "Advanced Information Technology",
+      "name_en": "Advanced Information Technology Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AJ",
+      "name_th": "A.J. Plast",
+      "name_en": "A.J. Plast Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AJA",
+      "name_th": "AJ Advance Technology",
+      "name_en": "AJ Advance Technology Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AKP",
+      "name_th": "Akkhie Prakarn",
+      "name_en": "Akkhie Prakarn Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AKR",
+      "name_th": "Ekarat Engineering",
+      "name_en": "Ekarat Engineering Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AKS",
+      "name_th": "AKS Corporation",
+      "name_en": "AKS Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ALLA",
+      "name_th": "Alla",
+      "name_en": "Alla Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ALPHAX",
+      "name_th": "Alpha Divisions",
+      "name_en": "Alpha Divisions Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ALT",
+      "name_th": "ALT Telecom",
+      "name_en": "ALT Telecom Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ALUCON",
+      "name_th": "Alucon",
+      "name_en": "Alucon Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AMA",
+      "name_th": "Ama Marine",
+      "name_en": "Ama Marine Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AMANAH",
+      "name_th": "Amanah Leasing",
+      "name_en": "Amanah Leasing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AMARC",
+      "name_th": "Asia Medical and Agricultural Laboratory and Research Center",
+      "name_en": "Asia Medical and Agricultural Laboratory and Research Center Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AMARIN",
+      "name_th": "Amarin Corporations",
+      "name_en": "Amarin Corporations Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AMATAV",
+      "name_th": "Amata VN",
+      "name_en": "Amata VN Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AMC",
+      "name_th": "Asia Metal",
+      "name_en": "Asia Metal Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AMR",
+      "name_th": "AMR Asia",
+      "name_en": "AMR Asia Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ANAN",
+      "name_th": "Ananda Development",
+      "name_en": "Ananda Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "APCO",
+      "name_th": "Asian Phytoceuticals",
+      "name_en": "Asian Phytoceuticals Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "APCS",
+      "name_th": "Asia Precision",
+      "name_en": "Asia Precision Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "APP",
+      "name_th": "Applicad",
+      "name_en": "Applicad Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "APURE",
+      "name_th": "Agripure Holdings",
+      "name_en": "Agripure Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AQUA",
+      "name_th": "Aqua Corporation",
+      "name_en": "Aqua Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ARIN",
+      "name_th": "Arinsiri Land",
+      "name_en": "Arinsiri Land Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ARIP",
+      "name_th": "ARIP",
+      "name_en": "ARIP Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ARROW",
+      "name_th": "Arrow Syndicate",
+      "name_en": "Arrow Syndicate Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AS",
+      "name_th": "Asphere Innovations",
+      "name_en": "Asphere Innovations Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ASAP",
+      "name_th": "Synergetic Auto Performance",
+      "name_en": "Synergetic Auto Performance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ASEFA",
+      "name_th": "Asefa",
+      "name_en": "Asefa Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ASIA",
+      "name_th": "Asia Hotel",
+      "name_en": "Asia Hotel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ASIAN",
+      "name_th": "Asian Sea Corporation",
+      "name_en": "Asian Sea Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ASIMAR",
+      "name_th": "Asian Marine Services",
+      "name_en": "Asian Marine Services Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ASK",
+      "name_th": "Asia Sermkij Leasing",
+      "name_en": "Asia Sermkij Leasing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ASN",
+      "name_th": "ASN Broker",
+      "name_en": "ASN Broker Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ASP",
+      "name_th": "Asia Plus Group Holdings",
+      "name_en": "Asia Plus Group Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ASTR",
+      "name_th": "Astra Enterprise",
+      "name_en": "Astra Enterprise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ASW",
+      "name_th": "Assetwise",
+      "name_en": "Assetwise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ATP30",
+      "name_th": "ATP 30",
+      "name_en": "ATP 30 Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AU",
+      "name_th": "After You",
+      "name_en": "After You Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AUCT",
+      "name_th": "Union Auction",
+      "name_en": "Union Auction Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AURA",
+      "name_th": "Aurora Design",
+      "name_en": "Aurora Design Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "AYUD",
+      "name_th": "Allianz Ayudhya Capital",
+      "name_en": "Allianz Ayudhya Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "B",
+      "name_th": "Begistics",
+      "name_en": "Begistics Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "B52",
+      "name_th": "B-52 Capital",
+      "name_en": "B-52 Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BA",
+      "name_th": "Bangkok Airways",
+      "name_en": "Bangkok Airways Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BAFS",
+      "name_th": "Bangkok Aviation Fuel Services",
+      "name_en": "Bangkok Aviation Fuel Services Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BAM",
+      "name_th": "Bangkok Commercial Asset Management",
+      "name_en": "Bangkok Commercial Asset Management Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BANPU",
+      "name_th": "Banpu",
+      "name_en": "Banpu Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BBGI",
+      "name_th": "BBGI",
+      "name_en": "BBGI Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BBIK",
+      "name_th": "Bluebik Group",
+      "name_en": "Bluebik Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BC",
+      "name_th": "Boutique Corporation",
+      "name_en": "Boutique Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BCPG",
+      "name_th": "BCPG",
+      "name_en": "BCPG Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BCT",
+      "name_th": "Birla Carbon (Thailand)",
+      "name_en": "Birla Carbon (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BE8",
+      "name_th": "Beryl 8 Plus",
+      "name_en": "Beryl 8 Plus Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BEAUTY",
+      "name_th": "Beauty Community",
+      "name_en": "Beauty Community Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BEC",
+      "name_th": "BEC World",
+      "name_en": "BEC World Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BEYOND",
+      "name_th": "Bound and Beyond",
+      "name_en": "Bound and Beyond Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BGC",
+      "name_th": "BG Container Glass",
+      "name_en": "BG Container Glass Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BGT",
+      "name_th": "BGT Corporation",
+      "name_en": "BGT Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BIG",
+      "name_th": "Big Camera Corporation",
+      "name_en": "Big Camera Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BIOTEC",
+      "name_th": "Bio Green Energy Tech",
+      "name_en": "Bio Green Energy Tech Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BIS",
+      "name_th": "Bioscience Animal Health",
+      "name_en": "Bioscience Animal Health Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BIZ",
+      "name_th": "Business Alignment",
+      "name_en": "Business Alignment Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BJCHI",
+      "name_th": "BJC Heavy Industries",
+      "name_en": "BJC Heavy Industries Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BKGI",
+      "name_th": "Bangkok Genomics Innovation",
+      "name_en": "Bangkok Genomics Innovation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BKIH",
+      "name_th": "BKI Holdings",
+      "name_en": "BKI Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BLA",
+      "name_th": "Bangkok Life Assurance",
+      "name_en": "Bangkok Life Assurance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BLAND",
+      "name_th": "Bangkok Land",
+      "name_en": "Bangkok Land Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BLC",
+      "name_th": "Bangkok Lab And Cosmetic",
+      "name_en": "Bangkok Lab And Cosmetic Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BLESS",
+      "name_th": "Bless Asset Group",
+      "name_en": "Bless Asset Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BM",
+      "name_th": "Bangkok Sheet Metal",
+      "name_en": "Bangkok Sheet Metal Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BOL",
+      "name_th": "Business Online",
+      "name_en": "Business Online Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BPP",
+      "name_th": "Banpu Power",
+      "name_en": "Banpu Power Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BR",
+      "name_th": "Bangkok Ranch",
+      "name_en": "Bangkok Ranch Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BRI",
+      "name_th": "Britania",
+      "name_en": "Britania Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BROCK",
+      "name_th": "Baan Rock Garden",
+      "name_en": "Baan Rock Garden Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BRR",
+      "name_th": "Buriram Sugar",
+      "name_en": "Buriram Sugar Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BSBM",
+      "name_th": "Bangsaphan Barmill",
+      "name_en": "Bangsaphan Barmill Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BSM",
+      "name_th": "BuilderSmart",
+      "name_en": "BuilderSmart Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BTC",
+      "name_th": "The Brooker Group",
+      "name_en": "The Brooker Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BTG",
+      "name_th": "Betagro",
+      "name_en": "Betagro Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BTNC",
+      "name_th": "Boutique Newcity",
+      "name_en": "Boutique Newcity Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BTW",
+      "name_th": "BT Wealth Industries",
+      "name_en": "BT Wealth Industries Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BUI",
+      "name_th": "Bangkok Union Insurance",
+      "name_en": "Bangkok Union Insurance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BVG",
+      "name_th": "BlueVenture Group",
+      "name_en": "BlueVenture Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BWG",
+      "name_th": "Better World Green",
+      "name_en": "Better World Green Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "BYD",
+      "name_th": "Beyond Securities",
+      "name_en": "Beyond Securities Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CAZ",
+      "name_th": "CAZ (Thailand)",
+      "name_en": "CAZ (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CCET",
+      "name_th": "Cal-Comp Electronics (Thailand)",
+      "name_en": "Cal-Comp Electronics (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CCP",
+      "name_th": "Chonburi Concrete Product",
+      "name_en": "Chonburi Concrete Product Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CEN",
+      "name_th": "Capital Engineering Network",
+      "name_en": "Capital Engineering Network Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CENTEL",
+      "name_th": "Central Plaza Hotel",
+      "name_en": "Central Plaza Hotel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CEYE",
+      "name_th": "Chamni's Eye",
+      "name_en": "Chamni's Eye Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CFARM",
+      "name_th": "Chuwit Farm (2019)",
+      "name_en": "Chuwit Farm (2019) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CFRESH",
+      "name_th": "Seafresh Industry",
+      "name_en": "Seafresh Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CGD",
+      "name_th": "Country Group Development",
+      "name_en": "Country Group Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CGH",
+      "name_th": "Country Group Holdings",
+      "name_en": "Country Group Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CH",
+      "name_th": "Chin Huay",
+      "name_en": "Chin Huay Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CHARAN",
+      "name_th": "Charan Insurance",
+      "name_en": "Charan Insurance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CHASE",
+      "name_th": "Chase Asia",
+      "name_en": "Chase Asia Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CHAYO",
+      "name_th": "Chayo Group",
+      "name_en": "Chayo Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CHEWA",
+      "name_th": "Chewathai",
+      "name_en": "Chewathai Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CHG",
+      "name_th": "Chularat Hospital",
+      "name_en": "Chularat Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CHIC",
+      "name_th": "Chic Republic",
+      "name_en": "Chic Republic Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CHO",
+      "name_th": "Cho Thavee",
+      "name_en": "Cho Thavee Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CI",
+      "name_th": "Charn Issara Development",
+      "name_en": "Charn Issara Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CIG",
+      "name_th": "C.I. Group",
+      "name_en": "C.I. Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CITY",
+      "name_th": "City Steel",
+      "name_en": "City Steel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CIVIL",
+      "name_th": "Civil Engineering",
+      "name_en": "Civil Engineering Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CK",
+      "name_th": "CH. Karnchang",
+      "name_en": "CH. Karnchang Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CKP",
+      "name_th": "CK Power",
+      "name_en": "CK Power Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CM",
+      "name_th": "Chiangmai Frozen Foods",
+      "name_en": "Chiangmai Frozen Foods Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CMAN",
+      "name_th": "Chememan",
+      "name_en": "Chememan Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CMC",
+      "name_th": "Chaoprayamahanakorn",
+      "name_en": "Chaoprayamahanakorn Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CMO",
+      "name_th": "CMO",
+      "name_en": "CMO Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CMR",
+      "name_th": "Chiang Mai Ram Medical Business",
+      "name_en": "Chiang Mai Ram Medical Business Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CNT",
+      "name_th": "Christiani & Nielsen (Thai)",
+      "name_en": "Christiani & Nielsen (Thai) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "COCOCO",
+      "name_th": "Thai Coconut",
+      "name_en": "Thai Coconut Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "COLOR",
+      "name_th": "Salee Colour",
+      "name_en": "Salee Colour Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "COMAN",
+      "name_th": "Comanche International",
+      "name_en": "Comanche International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CPANEL",
+      "name_th": "CPanel",
+      "name_en": "CPanel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CPH",
+      "name_th": "Castle Peak Holdings",
+      "name_en": "Castle Peak Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CPI",
+      "name_th": "Chumporn Palm Oil Industry",
+      "name_en": "Chumporn Palm Oil Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CPL",
+      "name_th": "CPL Group",
+      "name_en": "CPL Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CPR",
+      "name_th": "CPR Gomu Industrial",
+      "name_en": "CPR Gomu Industrial Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CPT",
+      "name_th": "CPT Drives and Power",
+      "name_en": "CPT Drives and Power Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CPW",
+      "name_th": "Copperwired",
+      "name_en": "Copperwired Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CRANE",
+      "name_th": "Chukai",
+      "name_en": "Chukai Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CRD",
+      "name_th": "Chiangmai Rimdoi",
+      "name_en": "Chiangmai Rimdoi Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CREDIT",
+      "name_th": "Thai Credit Bank",
+      "name_en": "Thai Credit Bank Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CSC",
+      "name_th": "Crown Seal",
+      "name_en": "Crown Seal Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CSP",
+      "name_th": "CSP Steel Center",
+      "name_en": "CSP Steel Center Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CSR",
+      "name_th": "City Sports and Recreation",
+      "name_en": "City Sports and Recreation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CSS",
+      "name_th": "Communication & System Solution",
+      "name_en": "Communication & System Solution Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CTW",
+      "name_th": "Charoong Thai Wire and Cable",
+      "name_en": "Charoong Thai Wire and Cable Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "CWT",
+      "name_th": "Chai Watana Tannery Group",
+      "name_en": "Chai Watana Tannery Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "D",
+      "name_th": "Dental Corporation",
+      "name_en": "Dental Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DCC",
+      "name_th": "Dynasty Ceramic",
+      "name_en": "Dynasty Ceramic Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DCON",
+      "name_th": "Dcon Products",
+      "name_en": "Dcon Products Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DDD",
+      "name_th": "Do Day Dream",
+      "name_en": "Do Day Dream Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DEMCO",
+      "name_th": "Demco",
+      "name_en": "Demco Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DEXON",
+      "name_th": "Dexon Technology",
+      "name_en": "Dexon Technology Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DHOUSE",
+      "name_th": "Dhouse Pattana",
+      "name_en": "Dhouse Pattana Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DIMET",
+      "name_th": "Dimet (Siam)",
+      "name_en": "Dimet (Siam) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DITTO",
+      "name_th": "Ditto (Thailand)",
+      "name_en": "Ditto (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DMT",
+      "name_th": "Don Muang Tollway",
+      "name_en": "Don Muang Tollway Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DOD",
+      "name_th": "DOD Biotech",
+      "name_en": "DOD Biotech Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DOHOME",
+      "name_th": "Dohome",
+      "name_en": "Dohome Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DPAINT",
+      "name_th": "Delta Paint",
+      "name_en": "Delta Paint Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DRT",
+      "name_th": "Diamond Building Products",
+      "name_en": "Diamond Building Products Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DTCENT",
+      "name_th": "D.T.C. Enterprise",
+      "name_en": "D.T.C. Enterprise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DTCI",
+      "name_th": "D.T.C. Industries",
+      "name_en": "D.T.C. Industries Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "DUSIT",
+      "name_th": "Dusit Thani",
+      "name_en": "Dusit Thani Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "EASON",
+      "name_th": "Eason & Co",
+      "name_en": "Eason & Co Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "EAST",
+      "name_th": "Eastern Commercial Leasing",
+      "name_en": "Eastern Commercial Leasing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "EASTW",
+      "name_th": "Eastern Water Resources Development and Management",
+      "name_en": "Eastern Water Resources Development and Management Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ECF",
+      "name_th": "East Coast Furnitech",
+      "name_en": "East Coast Furnitech Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "EFORL",
+      "name_th": "E for L Aim",
+      "name_en": "E for L Aim Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "EKH",
+      "name_th": "Ekachai Medical Care",
+      "name_en": "Ekachai Medical Care Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "EMC",
+      "name_th": "EMC",
+      "name_en": "EMC Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "EMPIRE",
+      "name_th": "Origin Global Empire",
+      "name_en": "Origin Global Empire Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "EP",
+      "name_th": "Eastern Power Group",
+      "name_en": "Eastern Power Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "EPG",
+      "name_th": "Eastern Polymer Group",
+      "name_en": "Eastern Polymer Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ERW",
+      "name_th": "The Erawan Group",
+      "name_en": "The Erawan Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ESTAR",
+      "name_th": "Eastern Star Real Estate",
+      "name_en": "Eastern Star Real Estate Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ETC",
+      "name_th": "Earth Tech Environment",
+      "name_en": "Earth Tech Environment Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ETE",
+      "name_th": "Eastern Technical Engineering",
+      "name_en": "Eastern Technical Engineering Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "EVER",
+      "name_th": "Everland",
+      "name_en": "Everland Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "F&D",
+      "name_th": "Food and Drinks",
+      "name_en": "Food and Drinks Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FANCY",
+      "name_th": "Fancy Wood Industries",
+      "name_en": "Fancy Wood Industries Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FLOYD",
+      "name_th": "Floyd",
+      "name_en": "Floyd Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FMT",
+      "name_th": "Fine Metal Technologies",
+      "name_en": "Fine Metal Technologies Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FN",
+      "name_th": "FN Factory Outlet",
+      "name_en": "FN Factory Outlet Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FNS",
+      "name_th": "FNS Holdings",
+      "name_en": "FNS Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FORTH",
+      "name_th": "Forth Corporation",
+      "name_en": "Forth Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FPI",
+      "name_th": "Fortune Parts Industry",
+      "name_en": "Fortune Parts Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FPT",
+      "name_th": "Frasers Property (Thailand)",
+      "name_en": "Frasers Property (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FSMART",
+      "name_th": "Forth Smart Service",
+      "name_en": "Forth Smart Service Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FSX",
+      "name_th": "Finansia X",
+      "name_en": "Finansia X Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FTE",
+      "name_th": "Firetrade Engineering",
+      "name_en": "Firetrade Engineering Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FTI",
+      "name_th": "Function International",
+      "name_en": "Function International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "FVC",
+      "name_th": "Filter Vision",
+      "name_en": "Filter Vision Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GABLE",
+      "name_th": "G-Able",
+      "name_en": "G-Able Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GBX",
+      "name_th": "Globlex Holding Management",
+      "name_en": "Globlex Holding Management Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GC",
+      "name_th": "Global Connections",
+      "name_en": "Global Connections Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GCAP",
+      "name_th": "G Capital",
+      "name_en": "G Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GEL",
+      "name_th": "General Engineering",
+      "name_en": "General Engineering Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GENCO",
+      "name_th": "General Environmental Conservation",
+      "name_en": "General Environmental Conservation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GFC",
+      "name_th": "Genesis Fertility Center",
+      "name_en": "Genesis Fertility Center Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GFPT",
+      "name_th": "GFPT",
+      "name_en": "GFPT Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GGC",
+      "name_th": "Global Green Chemicals",
+      "name_en": "Global Green Chemicals Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GJS",
+      "name_th": "G J Steel",
+      "name_en": "G J Steel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GLORY",
+      "name_th": "Glory Forever",
+      "name_en": "Glory Forever Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GPI",
+      "name_th": "Grand Prix International",
+      "name_en": "Grand Prix International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GRAMMY",
+      "name_th": "GMM Grammy",
+      "name_en": "GMM Grammy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GRAND",
+      "name_th": "Grande Asset Hotels and Property",
+      "name_en": "Grande Asset Hotels and Property Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GREEN",
+      "name_th": "Green Resources",
+      "name_en": "Green Resources Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GTB",
+      "name_th": "Getabec",
+      "name_en": "Getabec Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GTV",
+      "name_th": "Green Tech Ventures",
+      "name_en": "Green Tech Ventures Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GUNKUL",
+      "name_th": "Gunkul Engineering",
+      "name_en": "Gunkul Engineering Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "GYT",
+      "name_th": "Goodyear (Thailand)",
+      "name_en": "Goodyear (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "HANN",
+      "name_th": "Mukdahan International Hospital",
+      "name_en": "Mukdahan International Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "HARN",
+      "name_th": "Harn Engineering Solutions",
+      "name_en": "Harn Engineering Solutions Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "HENG",
+      "name_th": "Heng Leasing and Capital",
+      "name_en": "Heng Leasing and Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "HFT",
+      "name_th": "Hwa Fong Rubber (Thailand)",
+      "name_en": "Hwa Fong Rubber (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "HL",
+      "name_th": "Healthlead",
+      "name_en": "Healthlead Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "HPT",
+      "name_th": "Home Pottery",
+      "name_en": "Home Pottery Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "HTC",
+      "name_th": "Haad Thip",
+      "name_en": "Haad Thip Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "HTECH",
+      "name_th": "Halcyon Technology",
+      "name_en": "Halcyon Technology Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "HUMAN",
+      "name_th": "Humanica",
+      "name_en": "Humanica Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "HYDRO",
+      "name_th": "Hydrotek",
+      "name_en": "Hydrotek Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "I2",
+      "name_th": "I2 Enterprise",
+      "name_en": "I2 Enterprise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ICC",
+      "name_th": "I.C.C. International",
+      "name_en": "I.C.C. International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ICHI",
+      "name_th": "Ichitan Group",
+      "name_en": "Ichitan Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ICN",
+      "name_th": "Information and Communication Networks",
+      "name_en": "Information and Communication Networks Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "IFS",
+      "name_th": "IFS Capital (Thailand)",
+      "name_en": "IFS Capital (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "IHL",
+      "name_th": "Interhides",
+      "name_en": "Interhides Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "IIG",
+      "name_th": "I&I Group",
+      "name_en": "I&I Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "III",
+      "name_th": "Triple i Logistics",
+      "name_en": "Triple i Logistics Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ILINK",
+      "name_th": "Interlink Communication",
+      "name_en": "Interlink Communication Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ILM",
+      "name_th": "Index Living Mall",
+      "name_en": "Index Living Mall Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "IMH",
+      "name_th": "Intermedical Care and Lab Hospital",
+      "name_en": "Intermedical Care and Lab Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "IND",
+      "name_th": "Index International Group",
+      "name_en": "Index International Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "INET",
+      "name_th": "Internet Thailand",
+      "name_en": "Internet Thailand Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "INOX",
+      "name_th": "POSCO-Thainox",
+      "name_en": "POSCO-Thainox Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "INSET",
+      "name_th": "Infraset",
+      "name_en": "Infraset Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "INSURE",
+      "name_th": "Indara Insurance",
+      "name_en": "Indara Insurance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "IP",
+      "name_th": "Inter Pharma",
+      "name_en": "Inter Pharma Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "IRC",
+      "name_th": "Inoue Rubber (Thailand)",
+      "name_en": "Inoue Rubber (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "IRCP",
+      "name_th": "International Research Corporation",
+      "name_en": "International Research Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "IRPC",
+      "name_th": "IRPC",
+      "name_en": "IRPC Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "IT",
+      "name_th": "IT City",
+      "name_en": "IT City Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ITC",
+      "name_th": "i-Tail Corporation",
+      "name_en": "i-Tail Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ITD",
+      "name_th": "Italian-Thai Development",
+      "name_en": "Italian-Thai Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ITEL",
+      "name_th": "Interlink Telecom",
+      "name_en": "Interlink Telecom Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ITNS",
+      "name_th": "International Network System",
+      "name_en": "International Network System Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ITTHI",
+      "name_th": "Itthirit Nice Corporation",
+      "name_en": "Itthirit Nice Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "J",
+      "name_th": "JAS Asset",
+      "name_en": "JAS Asset Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "JAK",
+      "name_th": "Jakpaisan Estate",
+      "name_en": "Jakpaisan Estate Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "JAS",
+      "name_th": "Jasmine International",
+      "name_en": "Jasmine International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "JCK",
+      "name_th": "JCK International",
+      "name_en": "JCK International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "JCT",
+      "name_th": "Jack Chia Industries (Thailand)",
+      "name_en": "Jack Chia Industries (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "JDF",
+      "name_th": "JD Food",
+      "name_en": "JD Food Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "JPARK",
+      "name_th": "Jenkongklai",
+      "name_en": "Jenkongklai Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "JR",
+      "name_th": "J.R.W. Utility",
+      "name_en": "J.R.W. Utility Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "JTS",
+      "name_th": "Jasmine Technology Solution",
+      "name_en": "Jasmine Technology Solution Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "JUBILE",
+      "name_th": "Jubilee Enterprise",
+      "name_en": "Jubilee Enterprise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "K",
+      "name_th": "Kingsmen C.M.T.I.",
+      "name_en": "Kingsmen C.M.T.I. Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KAMART",
+      "name_th": "Karmarts",
+      "name_en": "Karmarts Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KASET",
+      "name_th": "Thai Ha",
+      "name_en": "Thai Ha Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KBS",
+      "name_th": "Khonburi Sugar",
+      "name_en": "Khonburi Sugar Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KC",
+      "name_th": "K.C. Property",
+      "name_en": "K.C. Property Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KCAR",
+      "name_th": "Krungthai Car Rent and Lease",
+      "name_en": "Krungthai Car Rent and Lease Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KCC",
+      "name_th": "Knight Club Capital Holding",
+      "name_en": "Knight Club Capital Holding Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KCG",
+      "name_th": "KCG Corporation",
+      "name_en": "KCG Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KCM",
+      "name_th": "K.C. Metalsheet",
+      "name_en": "K.C. Metalsheet Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KDH",
+      "name_th": "Thonburi Medical Centre",
+      "name_en": "Thonburi Medical Centre Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KGEN",
+      "name_th": "King Gen",
+      "name_en": "King Gen Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KGI",
+      "name_th": "KGI Securities (Thailand)",
+      "name_en": "KGI Securities (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KIAT",
+      "name_th": "Kiattana Transport",
+      "name_en": "Kiattana Transport Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KISS",
+      "name_th": "Rojukiss International",
+      "name_en": "Rojukiss International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KJL",
+      "name_th": "Kijcharoen Engineering Electric",
+      "name_en": "Kijcharoen Engineering Electric Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KK",
+      "name_th": "K&K Superstore Southern",
+      "name_en": "K&K Superstore Southern Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KLINIQ",
+      "name_th": "The Klinique Medical Clinic",
+      "name_en": "The Klinique Medical Clinic Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KOOL",
+      "name_th": "CL Venture",
+      "name_en": "CL Venture Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KSL",
+      "name_th": "Khon Kaen Sugar Industry",
+      "name_en": "Khon Kaen Sugar Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KTIS",
+      "name_th": "Kaset Thai International Sugar Corporation",
+      "name_en": "Kaset Thai International Sugar Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KTMS",
+      "name_th": "KT Medical Service",
+      "name_en": "KT Medical Service Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KUMWEL",
+      "name_th": "Kumwell Corporation",
+      "name_en": "Kumwell Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KUN",
+      "name_th": "Villa Kunalai",
+      "name_en": "Villa Kunalai Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KWM",
+      "name_th": "K.W. Metal Work",
+      "name_en": "K.W. Metal Work Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "KYE",
+      "name_th": "Kang Yong Electric",
+      "name_en": "Kang Yong Electric Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "L&E",
+      "name_th": "Lighting and Equipment",
+      "name_en": "Lighting and Equipment Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LALIN",
+      "name_th": "Lalin Property",
+      "name_en": "Lalin Property Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LANNA",
+      "name_th": "Lanna Resources",
+      "name_en": "Lanna Resources Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LDC",
+      "name_th": "LDC Dental",
+      "name_en": "LDC Dental Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LEE",
+      "name_th": "Lee Feed Mill",
+      "name_en": "Lee Feed Mill Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LEO",
+      "name_th": "Leo Global Logistics",
+      "name_en": "Leo Global Logistics Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LHFG",
+      "name_th": "LH Financial Group",
+      "name_en": "LH Financial Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LHK",
+      "name_th": "Lohakit Metal",
+      "name_en": "Lohakit Metal Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LIT",
+      "name_th": "Lease IT",
+      "name_en": "Lease IT Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LOXLEY",
+      "name_th": "Loxley",
+      "name_en": "Loxley Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LPH",
+      "name_th": "Ladprao General Hospital",
+      "name_en": "Ladprao General Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LPN",
+      "name_th": "L.P.N. Development",
+      "name_en": "L.P.N. Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LST",
+      "name_th": "Lam Soon (Thailand)",
+      "name_en": "Lam Soon (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "LTMH",
+      "name_th": "LTMH",
+      "name_en": "LTMH Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "M",
+      "name_th": "MK Restaurant Group",
+      "name_en": "MK Restaurant Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "M-CHAI",
+      "name_th": "Mahachai Hospital",
+      "name_en": "Mahachai Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MADAME",
+      "name_th": "Madame Bioscience",
+      "name_en": "Madame Bioscience Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MAGURO",
+      "name_th": "Maguro Group",
+      "name_en": "Maguro Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MAJOR",
+      "name_th": "Major Cineplex Group",
+      "name_en": "Major Cineplex Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MALEE",
+      "name_th": "Malee Group",
+      "name_en": "Malee Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MANRIN",
+      "name_th": "Mandarin Hotel",
+      "name_en": "Mandarin Hotel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MASTER",
+      "name_th": "Master Style",
+      "name_en": "Master Style Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MATCH",
+      "name_th": "Matching Maximize Solution",
+      "name_en": "Matching Maximize Solution Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MATI",
+      "name_th": "Matichon",
+      "name_en": "Matichon Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MBAX",
+      "name_th": "Multibax",
+      "name_en": "Multibax Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MBK",
+      "name_th": "MBK",
+      "name_en": "MBK Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MC",
+      "name_th": "MC Group",
+      "name_en": "MC Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MCOT",
+      "name_th": "MCOT",
+      "name_en": "MCOT Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MCS",
+      "name_th": "M.C.S. Steel",
+      "name_en": "M.C.S. Steel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MDX",
+      "name_th": "MDX",
+      "name_en": "MDX Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MEB",
+      "name_th": "MEB Corporation",
+      "name_en": "MEB Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MEGA",
+      "name_th": "Mega Lifesciences",
+      "name_en": "Mega Lifesciences Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MENA",
+      "name_th": "Mena Transport",
+      "name_en": "Mena Transport Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "META",
+      "name_th": "Meta Corporation",
+      "name_en": "Meta Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "METCO",
+      "name_th": "Muramoto Electron (Thailand)",
+      "name_en": "Muramoto Electron (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MFC",
+      "name_th": "MFC Asset Management",
+      "name_en": "MFC Asset Management Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MFEC",
+      "name_th": "MFEC",
+      "name_en": "MFEC Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MGC",
+      "name_th": "Millennium Group Corporation (Asia)",
+      "name_en": "Millennium Group Corporation (Asia) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MGT",
+      "name_th": "Megachem (Thailand)",
+      "name_en": "Megachem (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MICRO",
+      "name_th": "Micro Leasing",
+      "name_en": "Micro Leasing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MIDA",
+      "name_th": "Mida Assets",
+      "name_en": "Mida Assets Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MILL",
+      "name_th": "Millcon Steel",
+      "name_en": "Millcon Steel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MITSIB",
+      "name_th": "Mitsib Leasing",
+      "name_en": "Mitsib Leasing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MJD",
+      "name_th": "Major Development",
+      "name_en": "Major Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MK",
+      "name_th": "M.K. Real Estate Development",
+      "name_en": "M.K. Real Estate Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ML",
+      "name_th": "Mida Leasing",
+      "name_en": "Mida Leasing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MODERN",
+      "name_th": "Modernform Group",
+      "name_en": "Modernform Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MONO",
+      "name_th": "Mono Next",
+      "name_en": "Mono Next Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MOONG",
+      "name_th": "Moong Pattana International",
+      "name_en": "Moong Pattana International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MORE",
+      "name_th": "More Return",
+      "name_en": "More Return Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MOSHI",
+      "name_th": "Moshi Moshi Retail Corporation",
+      "name_en": "Moshi Moshi Retail Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MPJ",
+      "name_th": "MPJ Logistics",
+      "name_en": "MPJ Logistics Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MSC",
+      "name_th": "Metro Systems Corporation",
+      "name_en": "Metro Systems Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MST",
+      "name_th": "Maybank Securities (Thailand)",
+      "name_en": "Maybank Securities (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MTI",
+      "name_th": "Muang Thai Insurance",
+      "name_en": "Muang Thai Insurance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MTW",
+      "name_th": "Make To Win Holding",
+      "name_en": "Make To Win Holding Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MUD",
+      "name_th": "Mud & Hound",
+      "name_en": "Mud & Hound Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "MVP",
+      "name_th": "M Vision",
+      "name_en": "M Vision Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NATION",
+      "name_th": "Nation Group (Thailand)",
+      "name_en": "Nation Group (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NC",
+      "name_th": "Newcity (Bangkok)",
+      "name_en": "Newcity (Bangkok) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NCAP",
+      "name_th": "Next Capital",
+      "name_en": "Next Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NCH",
+      "name_th": "N.C. Housing",
+      "name_en": "N.C. Housing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NCL",
+      "name_th": "NCL International Logistics",
+      "name_en": "NCL International Logistics Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NCP",
+      "name_th": "Nice Call",
+      "name_en": "Nice Call Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NDR",
+      "name_th": "N.D. Rubber",
+      "name_en": "N.D. Rubber Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NEP",
+      "name_th": "NEP Realty and Industry",
+      "name_en": "NEP Realty and Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NER",
+      "name_th": "North East Rubber",
+      "name_en": "North East Rubber Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NETBAY",
+      "name_th": "Netbay",
+      "name_en": "Netbay Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NEW",
+      "name_th": "Wattana Karnpaet",
+      "name_en": "Wattana Karnpaet Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NEX",
+      "name_th": "Nex Point",
+      "name_en": "Nex Point Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NKT",
+      "name_th": "Nakornthon Hospital",
+      "name_en": "Nakornthon Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NL",
+      "name_th": "NL Development",
+      "name_en": "NL Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NNCL",
+      "name_th": "Nava Nakorn",
+      "name_en": "Nava Nakorn Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NOBLE",
+      "name_th": "Noble Development",
+      "name_en": "Noble Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NOVA",
+      "name_th": "Nova Empire",
+      "name_en": "Nova Empire Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NPK",
+      "name_th": "New Plus Knitting",
+      "name_en": "New Plus Knitting Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NRF",
+      "name_th": "NR Instant Produce",
+      "name_en": "NR Instant Produce Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NSL",
+      "name_th": "NSL Foods",
+      "name_en": "NSL Foods Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NTF",
+      "name_th": "NTF Intergroup (Thailand)",
+      "name_en": "NTF Intergroup (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NTSC",
+      "name_th": "Nutrition SC",
+      "name_en": "Nutrition SC Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NTV",
+      "name_th": "Nonthavej Hospital",
+      "name_en": "Nonthavej Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NUT",
+      "name_th": "Nutrition Profess",
+      "name_en": "Nutrition Profess Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NV",
+      "name_th": "Nova Organic",
+      "name_en": "Nova Organic Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NVD",
+      "name_th": "Nirvana Development",
+      "name_en": "Nirvana Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "NYT",
+      "name_th": "Namyong Terminal",
+      "name_en": "Namyong Terminal Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "OCC",
+      "name_th": "O.C.C.",
+      "name_en": "O.C.C. Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "OGC",
+      "name_th": "Ocean Glass",
+      "name_en": "Ocean Glass Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "OHTL",
+      "name_th": "OHTL",
+      "name_en": "OHTL Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "OKJ",
+      "name_th": "Pluk Phak Praw Rak Mae",
+      "name_en": "Pluk Phak Praw Rak Mae Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ONEE",
+      "name_th": "The ONE Enterprise",
+      "name_en": "The ONE Enterprise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ONSENS",
+      "name_th": "Onsen Retreat and Spa Group",
+      "name_en": "Onsen Retreat and Spa Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ORI",
+      "name_th": "Origin Property",
+      "name_en": "Origin Property Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PACO",
+      "name_th": "President Automobile Industries",
+      "name_en": "President Automobile Industries Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PAF",
+      "name_th": "Pan Asia Footwear",
+      "name_en": "Pan Asia Footwear Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PAP",
+      "name_th": "Pacific Pipe",
+      "name_en": "Pacific Pipe Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PATO",
+      "name_th": "Pato Chemical Industry",
+      "name_en": "Pato Chemical Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PB",
+      "name_th": "President Bakery",
+      "name_en": "President Bakery Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PCC",
+      "name_th": "Precise Corporation",
+      "name_en": "Precise Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PCE",
+      "name_th": "Petchsrivichai Enterprise",
+      "name_en": "Petchsrivichai Enterprise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PCSGH",
+      "name_th": "P.C.S. Machine Group Holding",
+      "name_en": "P.C.S. Machine Group Holding Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PDG",
+      "name_th": "Prodigy",
+      "name_en": "Prodigy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PDJ",
+      "name_th": "Pranda Jewelry",
+      "name_en": "Pranda Jewelry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PEACE",
+      "name_th": "Peace & Living",
+      "name_en": "Peace & Living Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PEER",
+      "name_th": "Peer For You",
+      "name_en": "Peer For You Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PERM",
+      "name_th": "Permsin Steel Works",
+      "name_en": "Permsin Steel Works Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PF",
+      "name_th": "Property Perfect",
+      "name_en": "Property Perfect Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PG",
+      "name_th": "People's Garment",
+      "name_en": "People's Garment Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PHG",
+      "name_th": "Patrangsit Healthcare Group",
+      "name_en": "Patrangsit Healthcare Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PHOL",
+      "name_th": "Phol Dhanya",
+      "name_en": "Phol Dhanya Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PIMO",
+      "name_th": "Pioneer Motor",
+      "name_en": "Pioneer Motor Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PIN",
+      "name_th": "Pinthong Industrial Park",
+      "name_en": "Pinthong Industrial Park Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PIS",
+      "name_th": "Pro Inside",
+      "name_en": "Pro Inside Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PJW",
+      "name_th": "Panjawattana Plastic",
+      "name_en": "Panjawattana Plastic Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PK",
+      "name_th": "Patkol",
+      "name_en": "Patkol Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PL",
+      "name_th": "Phatra Leasing",
+      "name_en": "Phatra Leasing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PLANB",
+      "name_th": "Plan B Media",
+      "name_en": "Plan B Media Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PLANET",
+      "name_th": "Planet Communications Asia",
+      "name_en": "Planet Communications Asia Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PLAT",
+      "name_th": "The Platinum Group",
+      "name_en": "The Platinum Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PLE",
+      "name_th": "Power Line Engineering",
+      "name_en": "Power Line Engineering Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PLT",
+      "name_th": "Pilatus Marine",
+      "name_en": "Pilatus Marine Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PLUS",
+      "name_th": "Royal Plus",
+      "name_en": "Royal Plus Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PM",
+      "name_th": "Premier Marketing",
+      "name_en": "Premier Marketing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PMC",
+      "name_th": "PMC Label Materials",
+      "name_en": "PMC Label Materials Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PMTA",
+      "name_th": "PM Thoresen Asia Holdings",
+      "name_en": "PM Thoresen Asia Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "POLY",
+      "name_th": "Polynet",
+      "name_en": "Polynet Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PORT",
+      "name_th": "Sahathai Terminal",
+      "name_en": "Sahathai Terminal Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PPM",
+      "name_th": "Porn Prom Metal",
+      "name_en": "Porn Prom Metal Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PPP",
+      "name_th": "Premier Products",
+      "name_en": "Premier Products Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PPPM",
+      "name_th": "PP Prime",
+      "name_en": "PP Prime Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PPS",
+      "name_th": "Project Planning Service",
+      "name_en": "Project Planning Service Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PQS",
+      "name_th": "Premier Quality Starch",
+      "name_en": "Premier Quality Starch Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PR9",
+      "name_th": "Praram 9 Hospital",
+      "name_en": "Praram 9 Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PRAKIT",
+      "name_th": "Prakit Holdings",
+      "name_en": "Prakit Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PRAPAT",
+      "name_th": "Peerapat Technology",
+      "name_en": "Peerapat Technology Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PREB",
+      "name_th": "Pre-Built",
+      "name_en": "Pre-Built Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PRECHA",
+      "name_th": "Preecha Group",
+      "name_en": "Preecha Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PRG",
+      "name_th": "PRG Corporation",
+      "name_en": "PRG Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PRI",
+      "name_th": "Primo Service Solutions",
+      "name_en": "Primo Service Solutions Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PRIME",
+      "name_th": "Prime Road Power",
+      "name_en": "Prime Road Power Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PRIN",
+      "name_th": "Prinsiri",
+      "name_en": "Prinsiri Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PRINC",
+      "name_th": "Principal Capital",
+      "name_en": "Principal Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PRM",
+      "name_th": "Prima Marine",
+      "name_en": "Prima Marine Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PROEN",
+      "name_th": "PROEN Corp",
+      "name_en": "PROEN Corp Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PROS",
+      "name_th": "Prosper Engineering",
+      "name_en": "Prosper Engineering Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PROUD",
+      "name_th": "Proud Real Estate",
+      "name_en": "Proud Real Estate Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PRTR",
+      "name_th": "PRTR Group",
+      "name_en": "PRTR Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PSGC",
+      "name_th": "PSG Corporation",
+      "name_en": "PSG Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PSH",
+      "name_th": "Pruksa Holding",
+      "name_en": "Pruksa Holding Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PSL",
+      "name_th": "Precious Shipping",
+      "name_en": "Precious Shipping Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PSP",
+      "name_th": "P.S.P. Specialties",
+      "name_en": "P.S.P. Specialties Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PSTC",
+      "name_th": "Power Solution Technologies",
+      "name_en": "Power Solution Technologies Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PT",
+      "name_th": "Premier Technology",
+      "name_en": "Premier Technology Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PTC",
+      "name_th": "Premier Tank Corporation",
+      "name_en": "Premier Tank Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PTG",
+      "name_th": "PTG Energy",
+      "name_en": "PTG Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PTL",
+      "name_th": "Polyplex (Thailand)",
+      "name_en": "Polyplex (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "PYLON",
+      "name_th": "Pylon",
+      "name_en": "Pylon Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "Q-CON",
+      "name_th": "Quality Construction Products",
+      "name_en": "Quality Construction Products Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "QDC",
+      "name_th": "Quantum D C",
+      "name_en": "Quantum D C Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "QH",
+      "name_th": "Quality Houses",
+      "name_en": "Quality Houses Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "QLT",
+      "name_th": "Qualitech",
+      "name_en": "Qualitech Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "QTC",
+      "name_th": "QTC Energy",
+      "name_en": "QTC Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RABBIT",
+      "name_th": "Rabbit Holdings",
+      "name_en": "Rabbit Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RAM",
+      "name_th": "Ramkhamhaeng Hospital",
+      "name_en": "Ramkhamhaeng Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RBF",
+      "name_th": "R&B Food Supply",
+      "name_en": "R&B Food Supply Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RCL",
+      "name_th": "Regional Container Lines",
+      "name_en": "Regional Container Lines Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "READY",
+      "name_th": "Readyplanet",
+      "name_en": "Readyplanet Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RICHY",
+      "name_th": "Richy Place 2002",
+      "name_en": "Richy Place 2002 Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RJH",
+      "name_th": "Rajthanee Hospital",
+      "name_en": "Rajthanee Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RML",
+      "name_th": "Raimon Land",
+      "name_en": "Raimon Land Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ROCK",
+      "name_th": "Rockworth",
+      "name_en": "Rockworth Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ROCTEC",
+      "name_th": "Roctec Global",
+      "name_en": "Roctec Global Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ROJNA",
+      "name_th": "Rojana Industrial Park",
+      "name_en": "Rojana Industrial Park Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RP",
+      "name_th": "Raja Ferry Port",
+      "name_en": "Raja Ferry Port Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RPC",
+      "name_th": "RPCG",
+      "name_en": "RPCG Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RPH",
+      "name_th": "Ratchaphruek Hospital",
+      "name_en": "Ratchaphruek Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RS",
+      "name_th": "RS",
+      "name_en": "RS Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RSP",
+      "name_th": "Rich Sport",
+      "name_en": "Rich Sport Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RT",
+      "name_th": "Right Tunnelling",
+      "name_en": "Right Tunnelling Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "RWI",
+      "name_th": "Rayong Wire Industries",
+      "name_en": "Rayong Wire Industries Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "S",
+      "name_th": "Singha Estate",
+      "name_en": "Singha Estate Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "S11",
+      "name_th": "S 11 Group",
+      "name_en": "S 11 Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SA",
+      "name_th": "Siamese Asset",
+      "name_en": "Siamese Asset Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAAM",
+      "name_th": "SAAM Development",
+      "name_en": "SAAM Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SABINA",
+      "name_th": "Sabina",
+      "name_en": "Sabina Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAF",
+      "name_th": "S.A.F. Special Steel",
+      "name_en": "S.A.F. Special Steel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAFE",
+      "name_th": "Safe Fertility Group",
+      "name_en": "Safe Fertility Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAK",
+      "name_th": "Saksiam Leasing",
+      "name_en": "Saksiam Leasing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SALEE",
+      "name_th": "Salee Industry",
+      "name_en": "Salee Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAM",
+      "name_th": "Samchai Steel Industries",
+      "name_en": "Samchai Steel Industries Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAMART",
+      "name_th": "Samart Corporation",
+      "name_en": "Samart Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAMCO",
+      "name_th": "Sammakorn",
+      "name_en": "Sammakorn Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAMTEL",
+      "name_th": "Samart Telcoms",
+      "name_en": "Samart Telcoms Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SANKO",
+      "name_th": "Sanko Diecasting (Thailand)",
+      "name_en": "Sanko Diecasting (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAPPE",
+      "name_th": "Sappe",
+      "name_en": "Sappe Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAT",
+      "name_th": "Somboon Advance Technology",
+      "name_en": "Somboon Advance Technology Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAUCE",
+      "name_th": "Thaitheparos",
+      "name_en": "Thaitheparos Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAV",
+      "name_th": "Samart Aviation Solutions",
+      "name_en": "Samart Aviation Solutions Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SAWANG",
+      "name_th": "Sawang Export",
+      "name_en": "Sawang Export Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SC",
+      "name_th": "SC Asset Corporation",
+      "name_en": "SC Asset Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SCAP",
+      "name_th": "Srisawad Capital 1969",
+      "name_en": "Srisawad Capital 1969 Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SCCC",
+      "name_th": "Siam City Cement",
+      "name_en": "Siam City Cement Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SCG",
+      "name_th": "Ratch Pathana Energy",
+      "name_en": "Ratch Pathana Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SCI",
+      "name_th": "SCI Electric",
+      "name_en": "SCI Electric Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SCM",
+      "name_th": "Successmore Being",
+      "name_en": "Successmore Being Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SCN",
+      "name_th": "Scan Inter",
+      "name_en": "Scan Inter Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SCP",
+      "name_th": "Southern Concrete Pile",
+      "name_en": "Southern Concrete Pile Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SDC",
+      "name_th": "Samart Digital",
+      "name_en": "Samart Digital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SE",
+      "name_th": "SiamEast Solutions",
+      "name_en": "SiamEast Solutions Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SE-ED",
+      "name_th": "SE-Education",
+      "name_en": "SE-Education Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SEAFCO",
+      "name_th": "Seafco",
+      "name_en": "Seafco Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SEAOIL",
+      "name_th": "Sea Oil",
+      "name_en": "Sea Oil Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SECURE",
+      "name_th": "nForce Secure",
+      "name_en": "nForce Secure Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SELIC",
+      "name_th": "Selic Corp",
+      "name_en": "Selic Corp Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SENA",
+      "name_th": "Sena Development",
+      "name_en": "Sena Development Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SENX",
+      "name_th": "SEN X",
+      "name_en": "SEN X Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SFLEX",
+      "name_th": "Starflex",
+      "name_en": "Starflex Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SFT",
+      "name_th": "Shrinkflex (Thailand)",
+      "name_en": "Shrinkflex (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SGC",
+      "name_th": "SG Capital",
+      "name_en": "SG Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SGF",
+      "name_th": "SGF Capital",
+      "name_en": "SGF Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SGP",
+      "name_th": "Siamgas and Petrochemicals",
+      "name_en": "Siamgas and Petrochemicals Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SHANG",
+      "name_th": "Shangri-La Hotel",
+      "name_en": "Shangri-La Hotel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SHR",
+      "name_th": "S Hotels and Resorts",
+      "name_en": "S Hotels and Resorts Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SIAM",
+      "name_th": "Siam Steel International",
+      "name_en": "Siam Steel International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SICT",
+      "name_th": "Silicon Craft Technology",
+      "name_en": "Silicon Craft Technology Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SIMAT",
+      "name_th": "Simat Technologies",
+      "name_en": "Simat Technologies Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SINGER",
+      "name_th": "Singer Thailand",
+      "name_en": "Singer Thailand Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SINO",
+      "name_th": "Sino Logistics Corporation",
+      "name_en": "Sino Logistics Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SIRI",
+      "name_th": "Sansiri",
+      "name_en": "Sansiri Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SIS",
+      "name_th": "SiS Distribution (Thailand)",
+      "name_en": "SiS Distribution (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SISB",
+      "name_th": "SISB",
+      "name_en": "SISB Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SITHAI",
+      "name_th": "Srithai Superware",
+      "name_en": "Srithai Superware Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SJWD",
+      "name_th": "SCGJWD Logistics",
+      "name_en": "SCGJWD Logistics Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SK",
+      "name_th": "Sirakorn",
+      "name_en": "Sirakorn Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SKE",
+      "name_th": "Sakol Energy",
+      "name_en": "Sakol Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SKIN",
+      "name_th": "Skin Laboratory",
+      "name_en": "Skin Laboratory Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SKN",
+      "name_th": "S.Kijchai Enterprise",
+      "name_en": "S.Kijchai Enterprise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SKR",
+      "name_th": "Sikarin",
+      "name_en": "Sikarin Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SKY",
+      "name_th": "Sky ICT",
+      "name_en": "Sky ICT Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SLP",
+      "name_th": "Salee Printing",
+      "name_en": "Salee Printing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SMD100",
+      "name_th": "SMD Rise",
+      "name_en": "SMD Rise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SMIT",
+      "name_th": "Sahamit Machinery",
+      "name_en": "Sahamit Machinery Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SMPC",
+      "name_th": "Sahamitr Pressure Container",
+      "name_en": "Sahamitr Pressure Container Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SMT",
+      "name_th": "Stars Microelectronics (Thailand)",
+      "name_en": "Stars Microelectronics (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SNC",
+      "name_th": "SNC Former",
+      "name_en": "SNC Former Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SNNP",
+      "name_th": "Srinanaporn Marketing",
+      "name_en": "Srinanaporn Marketing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SNP",
+      "name_th": "S&P Syndicate",
+      "name_en": "S&P Syndicate Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SO",
+      "name_th": "Siamrajathanee",
+      "name_en": "Siamrajathanee Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SOLAR",
+      "name_th": "Solartron",
+      "name_en": "Solartron Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SONIC",
+      "name_th": "Sonic Interfreight",
+      "name_en": "Sonic Interfreight Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SORKON",
+      "name_th": "S. Khonkaen Foods",
+      "name_en": "S. Khonkaen Foods Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SPA",
+      "name_th": "Siam Wellness Group",
+      "name_en": "Siam Wellness Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SPACK",
+      "name_th": "S. Pack & Print",
+      "name_en": "S. Pack & Print Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SPC",
+      "name_th": "Saha Pathanapibul",
+      "name_en": "Saha Pathanapibul Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SPCG",
+      "name_th": "SPCG",
+      "name_en": "SPCG Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SPG",
+      "name_th": "Siam Pan Group",
+      "name_en": "Siam Pan Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SPI",
+      "name_th": "Saha Pathana Inter-Holding",
+      "name_en": "Saha Pathana Inter-Holding Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SPRC",
+      "name_th": "Star Petroleum Refining",
+      "name_en": "Star Petroleum Refining Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SPTX",
+      "name_th": "SPT X",
+      "name_en": "SPT X Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SPVI",
+      "name_th": "S P V I",
+      "name_en": "S P V I Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SQ",
+      "name_th": "Sahakol Equipment",
+      "name_en": "Sahakol Equipment Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SR",
+      "name_th": "Siamraj",
+      "name_en": "Siamraj Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SRICHA",
+      "name_th": "Sriracha Construction",
+      "name_en": "Sriracha Construction Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SRS",
+      "name_th": "Sirisoft",
+      "name_en": "Sirisoft Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SSF",
+      "name_th": "Surapon Foods",
+      "name_en": "Surapon Foods Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SSP",
+      "name_th": "Sermsang Power Corporation",
+      "name_en": "Sermsang Power Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SSSC",
+      "name_th": "Siam Steel Service Center",
+      "name_en": "Siam Steel Service Center Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SST",
+      "name_th": "Sub Sri Thai",
+      "name_en": "Sub Sri Thai Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STA",
+      "name_th": "Sri Trang Agro-Industry",
+      "name_en": "Sri Trang Agro-Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STANLY",
+      "name_th": "Thai Stanley Electric",
+      "name_en": "Thai Stanley Electric Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STARM",
+      "name_th": "Star Money",
+      "name_en": "Star Money Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STC",
+      "name_th": "STC Concrete Product",
+      "name_en": "STC Concrete Product Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STECH",
+      "name_th": "Siam Technic Concrete",
+      "name_en": "Siam Technic Concrete Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STECON",
+      "name_th": "Stecon Group",
+      "name_en": "Stecon Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STELLA",
+      "name_th": "Stella X",
+      "name_en": "Stella X Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STGT",
+      "name_th": "Sri Trang Gloves (Thailand)",
+      "name_en": "Sri Trang Gloves (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STI",
+      "name_th": "Stonehenge Inter",
+      "name_en": "Stonehenge Inter Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STOWER",
+      "name_th": "Sky Tower",
+      "name_en": "Sky Tower Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STP",
+      "name_th": "Sahathai Printing & Packaging",
+      "name_en": "Sahathai Printing & Packaging Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "STPI",
+      "name_th": "STP&I",
+      "name_en": "STP&I Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SUC",
+      "name_th": "Saha-Union",
+      "name_en": "Saha-Union Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SUN",
+      "name_th": "Sunsweet",
+      "name_en": "Sunsweet Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SUPER",
+      "name_th": "Super Energy Corporation",
+      "name_en": "Super Energy Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SUSCO",
+      "name_th": "Susco",
+      "name_en": "Susco Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SUTHA",
+      "name_th": "Golden Lime",
+      "name_en": "Golden Lime Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SVOA",
+      "name_th": "SVOA",
+      "name_en": "SVOA Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SVR",
+      "name_th": "Sivarom Real Estate",
+      "name_en": "Sivarom Real Estate Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SVT",
+      "name_th": "Sun Vending Technology",
+      "name_en": "Sun Vending Technology Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SWC",
+      "name_th": "Sherwood Corporation (Thailand)",
+      "name_en": "Sherwood Corporation (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SYMC",
+      "name_th": "Symphony Communication",
+      "name_en": "Symphony Communication Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SYNEX",
+      "name_th": "Synnex (Thailand)",
+      "name_en": "Synnex (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "SYNTEC",
+      "name_th": "Syntec Construction",
+      "name_en": "Syntec Construction Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TACC",
+      "name_th": "T.A.C. Consumer",
+      "name_en": "T.A.C. Consumer Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TAE",
+      "name_th": "Thai Agro Energy",
+      "name_en": "Thai Agro Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TAKUNI",
+      "name_th": "Takuni Group",
+      "name_en": "Takuni Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TAN",
+      "name_th": "Tanachira Retail Corporation",
+      "name_en": "Tanachira Retail Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TASCO",
+      "name_th": "Tipco Asphalt",
+      "name_en": "Tipco Asphalt Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TATG",
+      "name_th": "Thai Auto Tools and Die",
+      "name_en": "Thai Auto Tools and Die Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TBN",
+      "name_th": "TBN Corporation",
+      "name_en": "TBN Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TBSP",
+      "name_th": "TBSP",
+      "name_en": "TBSP Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TC",
+      "name_th": "Tropical Canning (Thailand)",
+      "name_en": "Tropical Canning (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TCAP",
+      "name_th": "Thanachart Capital",
+      "name_en": "Thanachart Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TCC",
+      "name_th": "Thai Capital Corporation",
+      "name_en": "Thai Capital Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TCJ",
+      "name_th": "T.C.J. Asia",
+      "name_en": "T.C.J. Asia Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TCMC",
+      "name_th": "TCM Corporation",
+      "name_en": "TCM Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TCOAT",
+      "name_th": "Thai Coating Industrial",
+      "name_en": "Thai Coating Industrial Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TEAM",
+      "name_th": "Team Precision",
+      "name_en": "Team Precision Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TEAMG",
+      "name_th": "TEAM Consulting Engineering and Management",
+      "name_en": "TEAM Consulting Engineering and Management Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TEGH",
+      "name_th": "Thai Eastern Group Holdings",
+      "name_en": "Thai Eastern Group Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TEKA",
+      "name_th": "Teka Construction",
+      "name_en": "Teka Construction Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TFG",
+      "name_th": "Thaifoods Group",
+      "name_en": "Thaifoods Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TFI",
+      "name_th": "Thai Future Incorporation",
+      "name_en": "Thai Future Incorporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TFM",
+      "name_th": "Thai Union Feedmill",
+      "name_en": "Thai Union Feedmill Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TFMAMA",
+      "name_th": "Thai President Foods",
+      "name_en": "Thai President Foods Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TGE",
+      "name_th": "Thachang Green Energy",
+      "name_en": "Thachang Green Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TGH",
+      "name_th": "Thai Group Holdings",
+      "name_en": "Thai Group Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TGPRO",
+      "name_th": "Thai-German Products",
+      "name_en": "Thai-German Products Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TH",
+      "name_th": "Tong Hua Holding",
+      "name_en": "Tong Hua Holding Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "THAI",
+      "name_th": "Thai Airways International",
+      "name_en": "Thai Airways International Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "THANA",
+      "name_th": "Thanasiri Group",
+      "name_en": "Thanasiri Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "THANI",
+      "name_th": "Ratchthani Leasing",
+      "name_en": "Ratchthani Leasing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "THCOM",
+      "name_th": "Thaicom",
+      "name_en": "Thaicom Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "THE",
+      "name_th": "The Steel",
+      "name_en": "The Steel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "THG",
+      "name_th": "Thonburi Healthcare Group",
+      "name_en": "Thonburi Healthcare Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "THIP",
+      "name_th": "Thantawan Industry",
+      "name_en": "Thantawan Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "THMUI",
+      "name_th": "Thai Mui Corporation",
+      "name_en": "Thai Mui Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "THRE",
+      "name_th": "Thai Reinsurance",
+      "name_en": "Thai Reinsurance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "THREL",
+      "name_th": "Thaire Life Assurance",
+      "name_en": "Thaire Life Assurance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TIDLOR",
+      "name_th": "Tidlor Holdings",
+      "name_en": "Tidlor Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TIGER",
+      "name_th": "Thai Enger Holding",
+      "name_en": "Thai Enger Holding Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TIPCO",
+      "name_th": "Tipco Foods",
+      "name_en": "Tipco Foods Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TIPH",
+      "name_th": "Dhipaya Group Holdings",
+      "name_en": "Dhipaya Group Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TITLE",
+      "name_th": "Rhom Bho Property",
+      "name_en": "Rhom Bho Property Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TK",
+      "name_th": "Thitikorn",
+      "name_en": "Thitikorn Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TKC",
+      "name_th": "Turnkey Communication Services",
+      "name_en": "Turnkey Communication Services Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TKN",
+      "name_th": "Taokaenoi Food & Marketing",
+      "name_en": "Taokaenoi Food & Marketing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TKS",
+      "name_th": "T.K.S. Technologies",
+      "name_en": "T.K.S. Technologies Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TKT",
+      "name_th": "T.Krungthai Industries",
+      "name_en": "T.Krungthai Industries Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TL",
+      "name_th": "Techlead Next",
+      "name_en": "Techlead Next Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TLI",
+      "name_th": "Thai Life Insurance",
+      "name_en": "Thai Life Insurance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TM",
+      "name_th": "Techno Medical",
+      "name_en": "Techno Medical Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TMC",
+      "name_th": "T.M.C. Industrial",
+      "name_en": "T.M.C. Industrial Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TMD",
+      "name_th": "Thai Metal Drum Manufacturing",
+      "name_en": "Thai Metal Drum Manufacturing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TMI",
+      "name_th": "Teera-Mongkol Industry",
+      "name_en": "Teera-Mongkol Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TMILL",
+      "name_th": "T S Flour Mill",
+      "name_en": "T S Flour Mill Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TMT",
+      "name_th": "TMT Steel",
+      "name_en": "TMT Steel Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TMW",
+      "name_th": "Thai Mitsuwa",
+      "name_en": "Thai Mitsuwa Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TNDT",
+      "name_th": "Thai Nondestructive Testing",
+      "name_en": "Thai Nondestructive Testing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TNH",
+      "name_th": "Thai Nakarin Hospital",
+      "name_en": "Thai Nakarin Hospital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TNITY",
+      "name_th": "Trinity Watthana",
+      "name_en": "Trinity Watthana Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TNL",
+      "name_th": "Thanulux",
+      "name_en": "Thanulux Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TNP",
+      "name_th": "Thanapiriya",
+      "name_en": "Thanapiriya Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TNPC",
+      "name_th": "Thai Nam Plastic",
+      "name_en": "Thai Nam Plastic Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TOA",
+      "name_th": "TOA Paint (Thailand)",
+      "name_en": "TOA Paint (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TOG",
+      "name_th": "Thai Optical Group",
+      "name_en": "Thai Optical Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TOPP",
+      "name_th": "Thai O.P.P.",
+      "name_en": "Thai O.P.P. Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPA",
+      "name_th": "Thai Poly Acrylic",
+      "name_en": "Thai Poly Acrylic Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPAC",
+      "name_th": "Thai Plaspac",
+      "name_en": "Thai Plaspac Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPBI",
+      "name_th": "TPBI",
+      "name_en": "TPBI Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPCH",
+      "name_th": "TPC Power Holding",
+      "name_en": "TPC Power Holding Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPCS",
+      "name_th": "TPCS",
+      "name_en": "TPCS Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPIPL",
+      "name_th": "TPI Polene",
+      "name_en": "TPI Polene Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPIPP",
+      "name_th": "TPI Polene Power",
+      "name_en": "TPI Polene Power Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPL",
+      "name_th": "Thai Parcels",
+      "name_en": "Thai Parcels Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPLAS",
+      "name_th": "Thai Plastic Industrial (1994)",
+      "name_en": "Thai Plastic Industrial (1994) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPOLY",
+      "name_th": "Thai Polycons",
+      "name_en": "Thai Polycons Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPP",
+      "name_th": "Thai Packaging & Printing",
+      "name_en": "Thai Packaging & Printing Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TPS",
+      "name_th": "The Practical Solution",
+      "name_en": "The Practical Solution Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TQM",
+      "name_th": "TQM Alpha",
+      "name_en": "TQM Alpha Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TQR",
+      "name_th": "TQR",
+      "name_en": "TQR Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TRC",
+      "name_th": "TRC Construction",
+      "name_en": "TRC Construction Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TRITN",
+      "name_th": "Triton Holding",
+      "name_en": "Triton Holding Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TRT",
+      "name_th": "Tirathai",
+      "name_en": "Tirathai Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TRU",
+      "name_th": "Thai Rung Union Car",
+      "name_en": "Thai Rung Union Car Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TRUBB",
+      "name_th": "Thai Rubber Latex Group",
+      "name_en": "Thai Rubber Latex Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TRV",
+      "name_th": "T.R.V. Rubber Products",
+      "name_en": "T.R.V. Rubber Products Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TSC",
+      "name_th": "Thai Steel Cable",
+      "name_en": "Thai Steel Cable Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TSE",
+      "name_th": "Thai Solar Energy",
+      "name_en": "Thai Solar Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TSI",
+      "name_th": "The Thai Setakij Insurance",
+      "name_en": "The Thai Setakij Insurance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TSTH",
+      "name_th": "Tata Steel (Thailand)",
+      "name_en": "Tata Steel (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TTA",
+      "name_th": "Thoresen Thai Agencies",
+      "name_en": "Thoresen Thai Agencies Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TTI",
+      "name_th": "Thai Textile Industry",
+      "name_en": "Thai Textile Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TTT",
+      "name_th": "Toray Textiles (Thailand)",
+      "name_en": "Toray Textiles (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TTW",
+      "name_th": "TTW",
+      "name_en": "TTW Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TURBO",
+      "name_th": "Ngernturbo",
+      "name_en": "Ngernturbo Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TURTLE",
+      "name_th": "Super Turtle",
+      "name_en": "Super Turtle Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TVDH",
+      "name_th": "TVD Holdings",
+      "name_en": "TVD Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TVH",
+      "name_th": "Thaivivat Holdings",
+      "name_en": "Thaivivat Holdings Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TVO",
+      "name_th": "Thai Vegetable Oil",
+      "name_en": "Thai Vegetable Oil Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TVT",
+      "name_th": "TV Thunder",
+      "name_en": "TV Thunder Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TWP",
+      "name_th": "Thai Wire Products",
+      "name_en": "Thai Wire Products Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TWPC",
+      "name_th": "Thai Wah",
+      "name_en": "Thai Wah Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TWZ",
+      "name_th": "TWZ Corporation",
+      "name_en": "TWZ Corporation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "TYCN",
+      "name_th": "Tycoons Worldwide Group (Thailand)",
+      "name_en": "Tycoons Worldwide Group (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UAC",
+      "name_th": "UAC Global",
+      "name_en": "UAC Global Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UBA",
+      "name_th": "Utility Business Alliance",
+      "name_en": "Utility Business Alliance Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UBE",
+      "name_th": "Ubon Bio Ethanol",
+      "name_en": "Ubon Bio Ethanol Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UBIS",
+      "name_th": "Ubis (Asia)",
+      "name_en": "Ubis (Asia) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UEC",
+      "name_th": "Unimit Engineering",
+      "name_en": "Unimit Engineering Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UKEM",
+      "name_th": "Union Petrochemical",
+      "name_en": "Union Petrochemical Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UMI",
+      "name_th": "The Union Mosaic Industry",
+      "name_en": "The Union Mosaic Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UMS",
+      "name_th": "Unique Mining Services",
+      "name_en": "Unique Mining Services Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UNIQ",
+      "name_th": "Unique Engineering and Construction",
+      "name_en": "Unique Engineering and Construction Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UP",
+      "name_th": "Union Plastic",
+      "name_en": "Union Plastic Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UPF",
+      "name_th": "Union Pioneer",
+      "name_en": "Union Pioneer Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UPOIC",
+      "name_th": "United Palm Oil Industry",
+      "name_en": "United Palm Oil Industry Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UREKA",
+      "name_th": "Eureka Design",
+      "name_en": "Eureka Design Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UTP",
+      "name_th": "United Paper",
+      "name_en": "United Paper Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UV",
+      "name_th": "Univentures",
+      "name_en": "Univentures Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "UVAN",
+      "name_th": "Univanich Palm Oil",
+      "name_en": "Univanich Palm Oil Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "VARO",
+      "name_th": "Varopakorn",
+      "name_en": "Varopakorn Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "VCOM",
+      "name_th": "Vintcom Technology",
+      "name_en": "Vintcom Technology Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "VGI",
+      "name_th": "VGI",
+      "name_en": "VGI Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "VIBE",
+      "name_th": "Vibe Synergy Group",
+      "name_en": "Vibe Synergy Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "VIBHA",
+      "name_th": "Vibhavadi Medical Center",
+      "name_en": "Vibhavadi Medical Center Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "VIH",
+      "name_th": "Srivichaivejvivat",
+      "name_en": "Srivichaivejvivat Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "VL",
+      "name_th": "V.L. Enterprise",
+      "name_en": "V.L. Enterprise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "VNG",
+      "name_th": "Vanachai Group",
+      "name_en": "Vanachai Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "VPO",
+      "name_th": "Vichitbhan Palmoil",
+      "name_en": "Vichitbhan Palmoil Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "VRANDA",
+      "name_th": "Veranda Resort",
+      "name_en": "Veranda Resort Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WACOAL",
+      "name_th": "Thai Wacoal",
+      "name_en": "Thai Wacoal Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WARRIX",
+      "name_th": "Warrix Sport",
+      "name_en": "Warrix Sport Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WAVE",
+      "name_th": "Wave Exponential",
+      "name_en": "Wave Exponential Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WFX",
+      "name_th": "World Flex",
+      "name_en": "World Flex Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WGE",
+      "name_th": "Well Graded Engineering",
+      "name_en": "Well Graded Engineering Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WHAUP",
+      "name_th": "WHA Utilities and Power",
+      "name_en": "WHA Utilities and Power Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WICE",
+      "name_th": "Wice Logistics",
+      "name_en": "Wice Logistics Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WIIK",
+      "name_th": "WIIK",
+      "name_en": "WIIK Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WIN",
+      "name_th": "Wyncoast Industrial Park",
+      "name_en": "Wyncoast Industrial Park Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WINMED",
+      "name_th": "Winnergy Medical",
+      "name_en": "Winnergy Medical Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WINNER",
+      "name_th": "Winner Group Enterprise",
+      "name_en": "Winner Group Enterprise Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WORK",
+      "name_th": "Workpoint Entertainment",
+      "name_en": "Workpoint Entertainment Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WP",
+      "name_th": "WP Energy",
+      "name_en": "WP Energy Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "WPH",
+      "name_th": "Wattanapat Hospital Trang",
+      "name_en": "Wattanapat Hospital Trang Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "XBIO",
+      "name_th": "X Bioscience",
+      "name_en": "X Bioscience Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "XO",
+      "name_th": "Exotic Food",
+      "name_en": "Exotic Food Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "XPG",
+      "name_th": "XSpring Capital",
+      "name_en": "XSpring Capital Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "XYZ",
+      "name_th": "RSXYZ",
+      "name_en": "RSXYZ Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "YGG",
+      "name_th": "Yggdrazil Group",
+      "name_en": "Yggdrazil Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "YONG",
+      "name_th": "Yong Concrete",
+      "name_en": "Yong Concrete Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "YUASA",
+      "name_th": "Yuasa Battery (Thailand)",
+      "name_en": "Yuasa Battery (Thailand) Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ZAA",
+      "name_th": "ZALEKTA",
+      "name_en": "ZALEKTA Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ZEN",
+      "name_th": "ZEN Corporation Group",
+      "name_en": "ZEN Corporation Group Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    },
+    {
+      "symbol": "ZIGA",
+      "name_th": "Ziga Innovation",
+      "name_en": "Ziga Innovation Public Company Limited",
+      "market": "SET",
+      "sector": "อื่นๆ"
+    }
   ]
 }
