@@ -1,6 +1,6 @@
 # สถานะความคืบหน้า — Thai Stock Analyzer
 
-> โดเมน: yongyut.it-tni.online · อัปเดต: 2026-06-24 (Phase 0–3 เสร็จ · sync ตัวเลขกับ pipeline รันล่าสุด)
+> โดเมน: yongyut.it-tni.online · อัปเดต: 2026-06-25 (Phase 0–3 เสร็จ · **audit รอบสาม — บั๊กโค้ดแก้ครบแล้ว** เหลือแต่งานฝั่ง operational/CI ดู [🐞 ท้ายไฟล์](#-audit-รอบสาม--บั๊กงานค้างที่ยังไม่แก้-2026-06-25))
 > เอกสารนี้สรุป "เว็บ/ระบบทำถึงไหนแล้ว" — ดูข้อกำหนดเต็มที่ [`REQUIREMENTS.md`](./REQUIREMENTS.md)
 
 ## ภาพรวม
@@ -255,3 +255,46 @@
 **แก้:** commit + push โค้ด/frontend/เอกสารที่ค้าง (ไม่รวม data — CI เป็นเจ้าของ) → `fbcf2fe` · rebase ดึง CI data commit (`4848009`) ก่อน push · ตรวจไม่มี secret/`users.php`/`userdata` หลุด (gitignore กันแล้ว)
 
 **ผล:** CI run #28087589335 ยืนยัน Gemini + Telegram + 2-schedule ทำงานครบ ✅
+
+---
+
+## 🐞 audit รอบสาม — บั๊ก/งานค้างที่ยังไม่แก้ (2026-06-25)
+
+> ตรวจโค้ดจริงบนเครื่อง (ไม่ใช่แค่อ่าน doc) — อ่าน pipeline ทั้งหมด + PHP backend + frontend JS/HTML + ตรวจไฟล์ data สด
+> **สรุป: โครงสร้างหลักแน่น (auth/api/guard/indicators ผ่าน)** แต่เจอบั๊ก frontend 1 จุดที่ทำตัวเลขพอร์ตผิดได้จริง + งานค้างย่อยอีกหลายจุด
+>
+> ✅ **อัปเดต 2026-06-25 — บั๊ก/งานค้างฝั่งโค้ดแก้ครบทุกข้อแล้ว** (getStock null + ป้ายนอกชุดข้อมูล, แก้ไขรายการถือครอง, ป้าย sentiment stale, SET index stale, sentiment score string→null, news.js cosmetic) ทุกไฟล์ `node --check` ผ่าน · **เหลือเฉพาะงาน operational ที่ตรวจจากในเครื่องไม่ได้:** เติม sentiment รอบ EOD ถัดไป + ตรวจ/ push CI (ดูท้ายหัวข้อ)
+
+### 🔴 บั๊กจริง (ควรแก้)
+
+- [x] **พอร์ต/watchlist แสดงข้อมูลหุ้น "ผิดตัว" เงียบ ๆ เมื่อหุ้นอยู่นอก universe 58 ตัว** ⭐ สำคัญสุด — ✅ **แก้แล้ว 2026-06-25**
+  - ต้นเหตุ (เดิม): `getStock()` (`assets/app.js:37`) = `STOCKS.find(...) || STOCKS[0]` → หาไม่เจอ **คืนตัวแรก (ADVANC)** ไม่ใช่ null
+  - **แก้:** `getStock` คืน `null` เมื่อไม่เจอ (`app.js:37`) · `renderPortfolio` (`portfolio.js:26`) ตรวจ `unknown=!s` → ไม่เอาราคา/เซกเตอร์หุ้นอื่นมาคิด, แถวขึ้นป้าย **"⚠️ นอกชุดข้อมูล"** (สีเหลือง), ราคา/มูลค่า/PL = "—", ไม่นับเข้า MV/กระจายเซกเตอร์ → ตัวเลขพอร์ตถูกต้อง
+  - ด่านกันกลับมาทำงาน (ไม่ใช่ dead code แล้ว): `renderWatchlist` (`portfolio.js`) แสดง "ไม่มีข้อมูลในชุดติดตาม" · addForm `if(!getStock(sym))` บล็อกเพิ่มหุ้นนอกชุดจริง
+  - `detail.html` ไม่ได้ใช้ `getStock` (fetch `prices/<sym>.json` ตรง → 404 → `showDataError` สุภาพ) จึงไม่กระทบ
+  - ทดสอบ: `node --check` ผ่านทั้ง `app.js`/`portfolio.js`
+
+### 🟠 ข้อมูล / งานยังไม่เสร็จ
+
+- [x] **SET index ค้างเก่า** — ✅ **แก้แล้ว 2026-06-25**: `run.js` คำนวณ gap วันปฏิทินระหว่าง `^SET.BK` กับวันที่หุ้นล่าสุด (`latestStockDate`) → ติดธง `set_index.stale=true` เมื่อ ≥2 วัน + เก็บ `stale_days`/`stock_date` ลง `summary.json` · dashboard (`index.html`) โชว์ป้าย **"⏳ <วันที่>"** สีเหลือง + tooltip บอกว่า Yahoo ดีเลย์ · log ขึ้นคำเตือนตอนรันด้วย · `node --check` ผ่าน
+- [x] **แก้ไขรายการถือครองไม่ได้** — ✅ **แก้แล้ว 2026-06-25**: เพิ่มปุ่ม **✎ แก้ไข** ในตารางถือครอง (`portfolio.js`) + ฟังก์ชัน `editHolding()` เรียก action `update_holding` (prompt qty/cost, validate qty>0 & cost≥0) · `node --check` ผ่าน
+- [x] **ป้าย sentiment "stale" ไม่แสดง** — ✅ **แก้แล้ว 2026-06-25**: `renderNews()` ใน `detail.html` เช็ค `sent.stale` → ขึ้นป้าย **"⏳ ข้อมูลเก่า"** (สีเหลือง + tooltip อธิบายว่าเป็นค่าคงจากรอบก่อนเพราะดึง AI ไม่ได้/โควต้าหมด) ข้างชิป sentiment
+- [ ] **sentiment ว่างทั้ง 58 ตัวบนเว็บสดตอนนี้** (`meta.json → sentiment_ok:0`) — ⏳ **รอ EOD รอบถัดไป (operational ไม่ใช่บั๊กโค้ด)**: data สดสร้าง 2026-06-24T17:31Z (ตรวจซ้ำ 2026-06-25 ยังเป็นไฟล์เดิม) `sentiment_ok:0` เพราะโควต้า Gemini free tier หมดตอน debug · โค้ดแก้แล้ว (chunk 12 + ปิด thinking + carry-forward `stale`) · รอบ EOD ที่รันโค้ดใหม่บน CI จะเติม sentiment + ป้าย stale (frontend พร้อมแล้ว 2026-06-25)
+
+### 🟡 เล็กน้อย / เชิงป้องกัน
+
+- [x] `sentiment.js` — ✅ **แก้แล้ว 2026-06-25**: normalize score รองรับ string (`Number(...)`) + ถ้า parse ไม่ได้/ไม่ finite → คืน `null` แทน NaN เงียบ ๆ (`analyzeChunk`)
+- [x] `news.js:46` — ✅ **แก้แล้ว 2026-06-25**: เปลี่ยน `else if (!publisher)` ที่ซ้ำซ้อน → `else` (cosmetic)
+
+### ✅ ตรวจแล้วผ่าน (ไม่พบปัญหา)
+
+- PHP backend: `auth.php` (bcrypt + session ปลอดภัย + CSRF + timing-safe), `guard.php` (กัน path traversal + บล็อก .php + 403/302 ถูก), `api.php` (validate input + CSRF + sanitize uid), `.htaccess` (rewrite + กัน auth.php) — แน่นหนา
+- `indicators.js` SMA/EMA/RSI/MACD/ATR/ADX/Stoch/OBV — สูตรถูก (EMA seed จากค่าแรกเป็น simplification ที่ยอมรับได้)
+- `backtest.js` — index slicing ไม่ over-run (ตรวจ off-by-one แล้วถูก)
+- frontend field mapping — ทุก field ที่ `app.js`/`portfolio.js`/`detail.html` ใช้ มีจริงใน `summary.json`/`prices/<SYM>.json`
+- API action names ตรงกันระหว่าง frontend ↔ `api.php` ครบ
+- vendor assets (echarts/lightweight-charts/tailwind) มีไฟล์ครบ · pipeline JS parse ผ่านทุกไฟล์
+
+### ⚠️ ต้องเช็คเพิ่ม (จากในเครื่องตรวจไม่ได้)
+
+- [ ] **cron EOD บน GitHub Actions ยังรันจริงทุกวันหรือเปล่า** — ⚠️ **ตรวจจากในเครื่องไม่ได้ (ไม่มี `gh` CLI/auth บน host)** · ข้อมูลที่ตรวจได้ 2026-06-25: `meta.json generated_at = 2026-06-24T17:31Z`, แท่งหุ้นล่าสุด 06-23, **ยังไม่มี run ของ 06-25** · git HEAD บน host = `8faf2f7` · **เจ้าของควรเปิดแท็บ Actions** ดู run 06-24/06-25 + ตรวจว่า commit `af27e47`/`8faf2f7` + โค้ดแก้รอบสาม (2026-06-25) ถูก push ขึ้น origin แล้ว (ดู [ค้างไว้: push](#-deploych-log--2026-06-24))

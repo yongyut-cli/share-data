@@ -43,7 +43,7 @@ function splitTitleSource(rawTitle, sourceTag) {
     // Google News ต่อท้าย " - <แหล่งข่าว>" (บางเจ้ามี tagline ยาวต่อท้ายชื่ออีก) → ตัดตั้งแต่ " - <แหล่งข่าว>"
     const at = title.indexOf(` - ${publisher}`);
     if (at > 0) title = title.slice(0, at).trim();
-  } else if (!publisher) {
+  } else {
     const i = rawTitle.lastIndexOf(' - ');
     if (i > 0) {
       title = rawTitle.slice(0, i).trim();

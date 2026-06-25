@@ -98,10 +98,12 @@ async function analyzeChunk(p, chunk) {
     console.warn(`  ⚠ sentiment: parse JSON จาก ${p.name} ไม่ได้ (${chunk.map((c) => c.symbol).join(',')})`);
     return {};
   }
-  // normalize score ให้อยู่ใน -1..1
+  // normalize score ให้อยู่ใน -1..1 (รองรับกรณี LLM คืน score เป็น string เช่น "0.9")
   for (const k of Object.keys(parsed)) {
     const s = parsed[k];
-    if (s && typeof s.score === 'number') s.score = Math.max(-1, Math.min(1, s.score));
+    if (!s) continue;
+    const n = typeof s.score === 'number' ? s.score : (typeof s.score === 'string' ? Number(s.score) : NaN);
+    s.score = Number.isFinite(n) ? Math.max(-1, Math.min(1, n)) : null; // parse ไม่ได้ → null (ไม่ใช่ NaN เงียบ ๆ)
   }
   return parsed;
 }

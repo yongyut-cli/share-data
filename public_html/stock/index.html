@@ -141,6 +141,9 @@ READY.then(() => {
     const c = mk.set_index.chg;
     sc.textContent = (c>=0?'▲ +':'▼ ')+fmtNum(c)+'%';
     sc.className = 'text-sm font-semibold ' + (c>=0?'up':'down');
+    if (mk.set_index.stale) {
+      sc.innerHTML += ` <span class="chip" style="background:#fbbf2422;color:#fbbf24;font-size:11px;padding:1px 7px;font-weight:600" title="SET index จาก Yahoo ดีเลย์ — ข้อมูล ณ ${mk.set_index.date} (หุ้นล่าสุด ${mk.set_index.stock_date||'—'})">⏳ ${mk.set_index.date}</span>`;
+    }
   }
   document.getElementById('turnover').innerHTML = fmtNum(mk.turnover_total_mbaht,0)+' <span class="text-sm muted">ลบ.</span>';
   document.getElementById('breadth').textContent = `บวก ${mk.advancers||0} · ลบ ${mk.decliners||0}`;

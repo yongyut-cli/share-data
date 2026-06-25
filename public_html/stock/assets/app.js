@@ -34,7 +34,7 @@ function scoreColor(v) {
 function fmtNum(v, d = 2) { return v == null ? '—' : (+v).toLocaleString('th-TH', { maximumFractionDigits: d, minimumFractionDigits: d }); }
 function fmtCap(b) { if (b == null) return '—'; return b >= 1000 ? (b / 1000).toFixed(2) + ' ล้านล้าน' : Math.round(b).toLocaleString('th-TH') + ' ลบ.'; }
 function qs(name) { return new URLSearchParams(location.search).get(name); }
-function getStock(sym) { return STOCKS.find((s) => s.sym === sym) || STOCKS[0]; }
+function getStock(sym) { return STOCKS.find((s) => s.sym === sym) || null; }
 
 // ---- EMA helper สำหรับกราฟ (รับ array ที่มี .time และ .close) ----
 function ema(data, period, key = 'close') {

@@ -253,11 +253,26 @@ async function main() {
 
   // --- SET index + สถิติภาพรวมตลาด (จาก universe ที่ติดตาม) ---
   let setIndex = null;
+  // วันที่ข้อมูลหุ้นล่าสุด (ใช้ตรวจว่า SET index เก่ากว่าหุ้นมากไหม — Yahoo ^SET.BK มักดีเลย์)
+  const latestStockDate = summary.reduce((m, s) => (s.date && s.date > m ? s.date : m), '');
   try {
     const idx = await fetchEOD('^SET.BK', { range: '5d' });
     const lb = idx.bars[idx.bars.length - 1];
-    setIndex = { value: lb.close, chg: changePct(idx.bars), date: lb.date };
-    console.log(`\nSET index: ${setIndex.value} (${setIndex.chg >= 0 ? '+' : ''}${setIndex.chg}%)`);
+    // นับช่องว่างวันปฏิทินระหว่างวันที่ index กับวันที่หุ้นล่าสุด
+    let staleDays = 0;
+    if (latestStockDate && lb.date && lb.date < latestStockDate) {
+      staleDays = Math.round((Date.parse(latestStockDate) - Date.parse(lb.date)) / 86400000);
+    }
+    setIndex = {
+      value: lb.close,
+      chg: changePct(idx.bars),
+      date: lb.date,
+      stale: staleDays >= 2,        // ดีเลย์ ≥2 วันปฏิทิน → ติดธงให้ frontend เตือน
+      stale_days: staleDays,
+      stock_date: latestStockDate || null,
+    };
+    const flag = setIndex.stale ? ` ⚠ เก่ากว่าหุ้น ${staleDays} วัน (หุ้นล่าสุด ${latestStockDate})` : '';
+    console.log(`\nSET index: ${setIndex.value} (${setIndex.chg >= 0 ? '+' : ''}${setIndex.chg}%) @ ${lb.date}${flag}`);
   } catch (e) {
     console.warn(`\n⚠ ดึง SET index ไม่ได้: ${e.message}`);
   }

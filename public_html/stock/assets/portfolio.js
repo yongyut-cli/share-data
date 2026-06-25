@@ -25,12 +25,13 @@ function fillSymList() {
 // ---- render สรุป + ตารางถือครอง ----
 function renderPortfolio() {
   const rows = STATE.portfolio.map((h) => {
-    const s = getStock(h.sym) || {};
-    const price = s.price ?? null;
+    const s = getStock(h.sym);
+    const unknown = !s;                       // หุ้นนอก universe — ไม่มีราคา/เซกเตอร์จริง
+    const price = s && s.price != null ? s.price : null;
     const val = price != null ? h.qty * price : null;
     const c = h.qty * h.cost;
     const pl = val != null ? val - c : null;
-    return { h, s, price, val, c, pl, signal: s.signal || 'NA', sector: s.sector || '—' };
+    return { h, s, unknown, price, val, c, pl, signal: (s && s.signal) || 'NA', sector: (s && s.sector) || '—' };
   });
 
   let mv = 0, cost = 0;
@@ -44,17 +45,22 @@ function renderPortfolio() {
   setText('plpct', (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%', pct >= 0 ? 'up' : 'down');
 
   $('emptyHold').style.display = rows.length ? 'none' : '';
-  $('tb').innerHTML = rows.map(({ h, s, price, val, pl, signal }) => {
+  $('tb').innerHTML = rows.map(({ h, s, unknown, price, val, pl, signal }) => {
     const m = SIGNAL_META[signal] || SIGNAL_META.NA;
+    const nameCell = unknown
+      ? `<b>${h.sym}</b> <span class="disclaimer" style="color:#fbbf24">⚠️ นอกชุดข้อมูล</span>`
+      : `<b>${h.sym}</b> <span class="disclaimer">${s.name || ''}</span>`;
+    const onclick = unknown ? '' : `onclick="location.href='detail.html?sym=${h.sym}'" style="cursor:pointer"`;
+    const sigCell = unknown ? '<span class="disclaimer">—</span>' : `<span class="chip ${m.cls}">${m.label}</span>`;
     return `<tr>
-      <td onclick="location.href='detail.html?sym=${h.sym}'" style="cursor:pointer"><b>${h.sym}</b> <span class="disclaimer">${s.name || ''}</span></td>
+      <td ${onclick}>${nameCell}</td>
       <td>${h.qty.toLocaleString('th-TH')}</td>
       <td>${fmtNum(h.cost)}</td>
       <td>${price != null ? fmtNum(price) : '—'}</td>
       <td>${val != null ? val.toLocaleString('th-TH', { maximumFractionDigits: 0 }) : '—'}</td>
       <td class="${pl == null ? '' : pl >= 0 ? 'up' : 'down'}">${pl == null ? '—' : (pl >= 0 ? '+' : '') + pl.toLocaleString('th-TH', { maximumFractionDigits: 0 })}</td>
-      <td><span class="chip ${m.cls}">${m.label}</span></td>
-      <td><button onclick="delHolding('${h.id}')" title="ลบ" style="color:#f87171;font-weight:700;padding:2px 8px">✕</button></td>
+      <td>${sigCell}</td>
+      <td><button onclick="editHolding('${h.id}')" title="แก้ไข" style="color:#60a5fa;font-weight:700;padding:2px 8px">✎</button><button onclick="delHolding('${h.id}')" title="ลบ" style="color:#f87171;font-weight:700;padding:2px 8px">✕</button></td>
     </tr>`;
   }).join('');
 
@@ -121,6 +127,21 @@ async function delHolding(id) {
   if (!confirm('ลบรายการนี้?')) return;
   STATE = await apiPost('del_holding', { id });
   renderPortfolio();
+}
+async function editHolding(id) {
+  const h = (STATE.portfolio || []).find((x) => x.id === id);
+  if (!h) return;
+  const qtyStr = prompt(`จำนวนหุ้น ${h.sym} (เดิม ${h.qty})`, String(h.qty));
+  if (qtyStr === null) return;
+  const costStr = prompt(`ต้นทุนเฉลี่ย/หุ้น ${h.sym} (เดิม ${h.cost})`, String(h.cost));
+  if (costStr === null) return;
+  const qty = parseFloat(qtyStr);
+  const cost = parseFloat(costStr);
+  if (!(qty > 0) || !(cost >= 0)) { alert('⚠️ จำนวนต้อง > 0 และต้นทุน ≥ 0'); return; }
+  try {
+    STATE = await apiPost('update_holding', { id, qty, cost });
+    renderPortfolio();
+  } catch (err) { alert('⚠️ ' + err.message); }
 }
 async function watchDel(sym) {
   STATE = await apiPost('watch_del', { sym });
